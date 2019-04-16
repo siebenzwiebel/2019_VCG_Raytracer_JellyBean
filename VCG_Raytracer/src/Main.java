@@ -14,12 +14,12 @@
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- <<< YOUR TEAM NAME >>>
+ <<< JellyBean >>>
 
-     Master of Documentation:
-     Master of Structure:
-     Master of Performance:
-     Master of Theory:
+     Master of Documentation: Jannik
+     Master of Structure: Nam
+     Master of Performance: Steven
+     Master of Theory: Timo
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
