@@ -32,7 +32,7 @@ import utils.io.Log;
 public class Main {
 
     /** ****************************************************** */
-    /** ****************** CONSTANTS GO HERE ****************** **/
+    /** ****************** CONSTANTS GO HERE *ff***************** **/
 
     static final int IMAGE_WIDTH = 800;
     static final int IMAGE_HEIGHT = 600;
