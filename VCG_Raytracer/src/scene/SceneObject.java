@@ -4,11 +4,12 @@ import utils.algebra.Vec3;
 
 public class SceneObject {
 
-    private Vec3 mPosition = new Vec3();
+    protected Vec3 mPosition = new Vec3();
 
 
     public SceneObject(Vec3 pos){
-        mPosition = pos;
+
+        this.mPosition = pos;
     }
 
     public Vec3 getPosition(){

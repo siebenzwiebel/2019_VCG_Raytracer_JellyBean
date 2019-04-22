@@ -16,11 +16,14 @@
 
 package raytracer;
 
+import camera.PerspCam;
 import scene.Scene;
 import ui.Window;
 import utils.*;
+import utils.algebra.Matrix4x4;
 import utils.algebra.Vec2;
 import utils.algebra.Vec3;
+import utils.algebra.Vec4;
 import utils.io.Log;
 
 import java.awt.image.BufferedImage;
@@ -64,23 +67,44 @@ public class Raytracer {
         exportRendering(mBufferedImage);
     }
 
-    private Ray createPrimaryRay(float x, float y){
-        return new Ray();
+    private Ray createPrimaryRay(Vec3 position, Vec3 direction){
+
+        return new Ray(position, direction, 1);
+
     }
 
     private RgbColor sendPrimaryRay(Vec2 pixelPoint){
-        Ray primaryRay = createPrimaryRay(pixelPoint.x, pixelPoint.y);
+        Vec3 direction = mScene.perspCamera.calculate2DRayDirection(pixelPoint);
+        Vec3 origin = mScene.perspCamera.getPos();
+
+
+        // LOG ALLES HIER VON BERECHNUNG BIS ZUR ROTATION GOGOGO
+
+        Matrix4x4 rotationMatrix = Matrix4x4.directionalRotationMatrix(mScene.perspCamera.getUp(), mScene.perspCamera.calcCamUp() );
+
+        //Rotating the pixel to match the rotation of the camera(must be done as a 4DVector)
+        Vec4 direction4D = rotationMatrix.multVec3(new Vec4(direction.x, direction.y, direction.z, 0));
+        //Back to 3DVector
+        direction = new Vec3(direction4D.x, direction4D.y, direction4D.z);
+        //Putting the rotated pixel in front of the camera
+        direction = direction.add(mScene.perspCamera.getLookAt());
+        //Log.print("direction: " + direction.toString());
+        Ray primaryRay = createPrimaryRay(origin, direction);
         return traceRay(primaryRay);
     }
 
     private RgbColor traceRay(Ray inRay){
+        Vec3 direction = inRay.getDirection();
         // here comes all the magic
         //
         //
         //
         // ...
         // this could be your favourite color!
-        return new RgbColor(0,0.521f,0.743f);
+        //Log.print("X: " + direction.x + " Y: " + direction.y + " Z: " + direction.z);
+        //Log.print("x: " + (direction.x+1)/2 + " y: " + (direction.y+1)/2 + " z" + (direction.z+1)/2);
+        return new RgbColor((direction.x+1)/2,(direction.y+1)/2,(direction.z+1)/2);
+
     }
 
 }

@@ -26,6 +26,7 @@
 import raytracer.Raytracer;
 import ui.Window;
 import scene.Scene;
+import utils.algebra.Vec3;
 import utils.io.Log;
 
 // Main application class. This is the routine called by the JVM to run the program.
@@ -102,7 +103,29 @@ public class Main {
 
     private static void setupCameras(Scene renderScene) {
         Log.warn("We don't have cameras, either");
-        renderScene.createPerspCamera(null, null, null, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+        // setup multiple test cameras
+        Vec3 camPos_1 = new Vec3(0, 0, 17);
+        Vec3 viewPoint_1 = new Vec3(0,0,0);
+        Vec3 upVec_1 = new Vec3(0,1,0);
+        float viewAngle_1 = 35;
+        float focalLength_1 = 0;
+
+        Vec3 camPos_2 = new Vec3(0, 0, 17);
+        Vec3 viewPoint_2 = new Vec3(0,0,0);
+        Vec3 upVec_2 = new Vec3(0,1,0);
+        float viewAngle_2 = 35;
+        float focalLength_2 = 0;
+
+        Vec3 camPos_3 = new Vec3(0, 0, 17);
+        Vec3 viewPoint_3 = new Vec3(0,0,0);
+        Vec3 upVec_3 = new Vec3(0,1,0);
+        float viewAngle_3 = 35;
+        float focalLength_3 = 0;
+
+        renderScene.createPerspCamera(camPos_1, viewPoint_1, upVec_1, viewAngle_1, focalLength_1, IMAGE_WIDTH, IMAGE_HEIGHT);
+        //renderScene.createPerspCamera(camPos, viewPoint, upVec, viewAngle, focalLength, IMAGE_WIDTH, IMAGE_HEIGHT);
+        //renderScene.createPerspCamera(camPos, viewPoint, upVec, viewAngle, focalLength, IMAGE_WIDTH, IMAGE_HEIGHT);
     }
 
     private static void setupObjects(Scene renderScene) {

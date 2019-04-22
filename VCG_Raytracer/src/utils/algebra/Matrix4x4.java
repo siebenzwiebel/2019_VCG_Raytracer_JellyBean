@@ -878,4 +878,38 @@ public class Matrix4x4 {
 		}
 		private static final long serialVersionUID = 1;
 	}
+
+	/**Calculates the rotationmatrix from one vector to another vector through Axis-Angle-Rotation
+	 *
+	 * @param fromVector
+	 * @param toVector
+	 * @return 4X4Matrix representing the rotation
+	 */
+	public static Matrix4x4 directionalRotationMatrix(Vec3 fromVector, Vec3 toVector) {
+		//Axis, the fromVector gets rotated around
+		Vec3 axis = fromVector.cross(toVector);//.normalize();
+		//Angle, the fromVector gets rotated around the axis
+		double angle = Math.acos(fromVector.scalar(toVector));
+
+
+		double sin_angle = Math.sin(angle);
+		double cos_angle = Math.cos(angle);
+
+		Matrix4x4 out = new Matrix4x4();
+
+		out.setValueAt( 0, 0, cos_angle + (axis.x * axis.x)*(1-cos_angle) );
+		out.setValueAt( 0, 1, axis.x*axis.y*(1-cos_angle)-(axis.z*sin_angle) );
+		out.setValueAt( 0, 2, axis.x*axis.z*(1-cos_angle)+(axis.y*sin_angle));
+
+		out.setValueAt( 1, 0, axis.y*axis.x*(1-cos_angle)+(axis.z*sin_angle) );
+		out.setValueAt( 1, 1, cos_angle + (axis.y * axis.y)*(1-cos_angle) );
+		out.setValueAt( 1, 2, axis.y*axis.z*(1-cos_angle)-(axis.x*sin_angle) );
+
+		out.setValueAt( 2, 0, axis.z*axis.x*(1-cos_angle)-(axis.y*sin_angle) );
+		out.setValueAt( 2, 1, axis.z*axis.y*(1-cos_angle)+(axis.x*sin_angle) );
+		out.setValueAt( 2, 2, cos_angle + (axis.z * axis.z)*(1-cos_angle));
+
+		return out;
+	}
+
 }
