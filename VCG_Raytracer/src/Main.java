@@ -24,8 +24,11 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 import raytracer.Raytracer;
+import scene.Sphere;
 import ui.Window;
 import scene.Scene;
+import utils.Globals;
+import utils.RgbColor;
 import utils.algebra.Vec3;
 import utils.io.Log;
 
@@ -104,32 +107,20 @@ public class Main {
     private static void setupCameras(Scene renderScene) {
         Log.warn("We don't have cameras, either");
 
-        // setup multiple test cameras
-        Vec3 camPos_1 = new Vec3(0, 0, 17);
-        Vec3 viewPoint_1 = new Vec3(0,0,0);
-        Vec3 upVec_1 = new Vec3(0,1,0);
-        float viewAngle_1 = 35;
-        float focalLength_1 = 0;
+        Vec3 camPos = new Vec3(0, 0, 17);
+        Vec3 viewPoint = new Vec3(0,0,0);
+        Vec3 upVec = new Vec3(0,1,0);
+        float viewAngle = 35 * Globals.RAD;
 
-        Vec3 camPos_2 = new Vec3(0, 0, 17);
-        Vec3 viewPoint_2 = new Vec3(0,0,0);
-        Vec3 upVec_2 = new Vec3(0,1,0);
-        float viewAngle_2 = 35;
-        float focalLength_2 = 0;
 
-        Vec3 camPos_3 = new Vec3(0, 0, 17);
-        Vec3 viewPoint_3 = new Vec3(0,0,0);
-        Vec3 upVec_3 = new Vec3(0,1,0);
-        float viewAngle_3 = 35;
-        float focalLength_3 = 0;
+        renderScene.createPerspCamera(camPos, viewPoint, upVec, viewAngle, IMAGE_WIDTH, IMAGE_HEIGHT);
 
-        renderScene.createPerspCamera(camPos_1, viewPoint_1, upVec_1, viewAngle_1, focalLength_1, IMAGE_WIDTH, IMAGE_HEIGHT);
-        //renderScene.createPerspCamera(camPos, viewPoint, upVec, viewAngle, focalLength, IMAGE_WIDTH, IMAGE_HEIGHT);
-        //renderScene.createPerspCamera(camPos, viewPoint, upVec, viewAngle, focalLength, IMAGE_WIDTH, IMAGE_HEIGHT);
     }
 
     private static void setupObjects(Scene renderScene) {
-        Log.warn("Just so, so empty. No objects");
+        Sphere sphere = new Sphere(new Vec3(0,0,0), 1f);
+        renderScene.addObject(sphere);
+
     }
 
     private static void setupCornellBox(Scene renderScene) {

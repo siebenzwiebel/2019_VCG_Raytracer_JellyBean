@@ -1,5 +1,7 @@
 package utils.algebra;
 
+import utils.io.Log;
+
 public class Matrix4x4 {
 
 	private Matrix mBaseMatrix;
@@ -888,6 +890,7 @@ public class Matrix4x4 {
 	public static Matrix4x4 directionalRotationMatrix(Vec3 fromVector, Vec3 toVector) {
 		//Axis, the fromVector gets rotated around
 		Vec3 axis = fromVector.cross(toVector);//.normalize();
+		//Log.print(axis.toString());
 		//Angle, the fromVector gets rotated around the axis
 		double angle = Math.acos(fromVector.scalar(toVector));
 

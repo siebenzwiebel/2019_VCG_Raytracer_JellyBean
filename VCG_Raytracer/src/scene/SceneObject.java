@@ -1,5 +1,6 @@
 package scene;
 
+import raytracer.Ray;
 import utils.algebra.Vec3;
 
 public class SceneObject {
@@ -10,6 +11,10 @@ public class SceneObject {
     public SceneObject(Vec3 pos){
 
         this.mPosition = pos;
+    }
+
+    public boolean isHitByRay(Ray ray){
+        return false;
     }
 
     public Vec3 getPosition(){

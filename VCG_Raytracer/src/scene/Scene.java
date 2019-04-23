@@ -1,6 +1,6 @@
 package scene;
 
-import camera.PerspCam;
+import camera.PerspectiveCamera;
 import utils.algebra.Vec3;
 import utils.io.Log;
 
@@ -13,7 +13,7 @@ public class Scene {
 
     private SceneObject mSceneCamera;
 
-    public PerspCam perspCamera;
+    public PerspectiveCamera perspCamera;
 
     public ArrayList<SceneObject> getShapeList() {
         return mShapeList;
@@ -28,8 +28,13 @@ public class Scene {
         mLightList = new ArrayList<>();
     }
 
-    public void createPerspCamera(Vec3 camPos, Vec3 viewPoint, Vec3 upVec, double viewAngle, double focalLength, int screenWidth, int screenHeight){
+    public void createPerspCamera(Vec3 camPos, Vec3 viewPoint, Vec3 upVec, double viewAngle, int screenWidth, int screenHeight){
         Log.error(this, "Cannot set camera!");
-        perspCamera = new PerspCam(camPos, viewPoint, upVec, viewAngle, focalLength, screenWidth, screenHeight);
+        perspCamera = new PerspectiveCamera(camPos, viewPoint, upVec, viewAngle, screenWidth, screenHeight);
     }
+
+    public void addObject(SceneObject pObject){
+        mShapeList.add(pObject);
+    }
+
 }
