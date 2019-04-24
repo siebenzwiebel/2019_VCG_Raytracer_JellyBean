@@ -8,6 +8,8 @@ import utils.io.Log;
 
 public abstract class Camera {
 
+
+
     protected final Vec3 e;
     protected Vec3 g;
     protected Vec3 gCalc;

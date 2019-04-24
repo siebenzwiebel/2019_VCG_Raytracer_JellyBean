@@ -7,7 +7,7 @@ import utils.algebra.Vec3;
 
 public class PerspectiveCamera extends Camera{
 
-    public final double angle;
+    private final double angle;
 
     public PerspectiveCamera(final Vec3 e, final Vec3 g, final Vec3 t, double angle, int width, int height) {
         super(e, g, t, width, height);

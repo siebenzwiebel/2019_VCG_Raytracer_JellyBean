@@ -81,6 +81,7 @@ public class Matrix4x4 {
 	 Invert matrix
 	 **/
 	public Matrix4x4 invert(){
+
 		return new Matrix4x4( mBaseMatrix.inverse() );
 	}
 
@@ -914,5 +915,9 @@ public class Matrix4x4 {
 
 		return out;
 	}
+
+
+
+
 
 }

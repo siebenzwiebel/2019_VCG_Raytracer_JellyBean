@@ -60,9 +60,24 @@ public class Raytracer {
         for(float y = 0f; y < mBufferedImage.getHeight(); y++){
             for(float x = 0; x < mBufferedImage.getWidth(); x++){
 
+                    // screenpoint
                     Vec2 screenPosition = new Vec2(x, y);
-                    RgbColor unusedColor = this.sendPrimaryRay(screenPosition);
-                    mRenderWindow.setPixel(mBufferedImage, unusedColor, new Vec2(x, y));
+
+                    Ray primaryRay = this.sendPrimaryRay(screenPosition);
+                    // backgroundcolor
+                    RgbColor color = new RgbColor(0,0,0);
+                    // check if hit
+                    for (SceneObject object:mScene.getShapeList()){
+
+                        // check hit
+                        if(object.isHitByRay(primaryRay)) {
+                            color = traceRay(primaryRay);
+                        }
+
+                    }
+
+                    mRenderWindow.setPixel(mBufferedImage, color, new Vec2(x, y));
+
             }
         }
         exportRendering(mBufferedImage);
@@ -74,11 +89,12 @@ public class Raytracer {
 
     }
 
-    private RgbColor sendPrimaryRay(Vec2 pixelPoint){
+    private Ray sendPrimaryRay(Vec2 pixelPoint){
 
         int x = (int) pixelPoint.x;
         int y = (int) pixelPoint.y;
 
+        // get correct ray from camera
         Ray ray = mScene.perspCamera.rayFor(x, y);
         //Log.print(ray.toString());
 
@@ -137,7 +153,7 @@ public class Raytracer {
 
         Ray primaryRay = createPrimaryRay(ray.getOrigin(), ray.getDirection());
 
-        return traceRay(primaryRay);
+        return primaryRay;
     }
 
     private RgbColor traceRay(Ray inRay){
@@ -145,13 +161,7 @@ public class Raytracer {
         // INTERSECTION
 
         RgbColor hitColor = new RgbColor(1,1,1);
-
-        for (SceneObject object:mScene.getShapeList()){
-            if(object.isHitByRay(inRay)) {
-                return hitColor;
-            }
-        }
-        return new RgbColor(0,0,0);
+        return hitColor;
 
 
 

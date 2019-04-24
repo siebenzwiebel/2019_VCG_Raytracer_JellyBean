@@ -118,7 +118,7 @@ public class Main {
     }
 
     private static void setupObjects(Scene renderScene) {
-        Sphere sphere = new Sphere(new Vec3(0,0,0), 1f);
+        Sphere sphere = new Sphere(new Vec3(3,3,0), 1.5f);
         renderScene.addObject(sphere);
 
     }

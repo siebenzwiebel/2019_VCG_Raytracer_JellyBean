@@ -17,6 +17,10 @@ public class SceneObject {
         return false;
     }
 
+    public Ray invMatTransform(Ray ray){
+        return ray;
+    }
+
     public Vec3 getPosition(){
         return mPosition;
     }
