@@ -28,6 +28,11 @@ import utils.algebra.Vec4;
 import utils.io.Log;
 
 import java.awt.image.BufferedImage;
+import java.util.*;
+
+import static java.lang.Float.POSITIVE_INFINITY;
+import static java.util.Comparator.naturalOrder;
+import static java.util.stream.Collectors.toList;
 
 public class Raytracer {
 
@@ -65,16 +70,32 @@ public class Raytracer {
 
                     Ray primaryRay = this.sendPrimaryRay(screenPosition);
                     // backgroundcolor
-                    RgbColor color = new RgbColor(0,0,0);
+                    RgbColor color;
                     // check if hit
+                    HashMap<SceneObject, Float> tValues= new HashMap<>();
+                    float t = POSITIVE_INFINITY;
+                    SceneObject objmin = new SceneObject(new Vec3(0,0,0), new RgbColor(0,0,0));
+                    Intersection intersection = new Intersection();
+
                     for (SceneObject object:mScene.getShapeList()){
 
-                        // check hit
-                        if(object.isHitByRay(primaryRay)) {
-                            color = traceRay(primaryRay);
-                        }
 
+
+                        // IMPLEMNT INTERSECTION AS CLASS!!!!!
+                        //float tmin = intersection.isHit(object, primaryRay);
+
+                        // check hit
+                        float tmin = object.isHitByRay(primaryRay);
+                        if (tmin != -1 && tmin < t){
+                            t = tmin;
+                            objmin = object;
+                        }
                     }
+
+                    // get object by smallest t value
+
+                    color = traceRay(primaryRay, objmin);
+
 
                     mRenderWindow.setPixel(mBufferedImage, color, new Vec2(x, y));
 
@@ -156,11 +177,11 @@ public class Raytracer {
         return primaryRay;
     }
 
-    private RgbColor traceRay(Ray inRay){
+    private RgbColor traceRay(Ray inRay, SceneObject object){
 
         // INTERSECTION
 
-        RgbColor hitColor = new RgbColor(1,1,1);
+        RgbColor hitColor = object.getColor();
         return hitColor;
 
 

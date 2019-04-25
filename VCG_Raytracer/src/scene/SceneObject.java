@@ -1,20 +1,22 @@
 package scene;
 
 import raytracer.Ray;
+import utils.RgbColor;
 import utils.algebra.Vec3;
 
 public class SceneObject {
 
-    protected Vec3 mPosition = new Vec3();
+    protected Vec3 mPosition;
+    protected RgbColor color;
 
-
-    public SceneObject(Vec3 pos){
+    public SceneObject(Vec3 pos, RgbColor color){
 
         this.mPosition = pos;
+        this.color = color;
     }
 
-    public boolean isHitByRay(Ray ray){
-        return false;
+    public float isHitByRay(Ray ray){
+        return -1;
     }
 
     public Ray invMatTransform(Ray ray){
@@ -31,5 +33,9 @@ public class SceneObject {
 
     public void moveTo(Vec3 transition){
         mPosition = mPosition.add( transition );
+    }
+
+    public RgbColor getColor() {
+        return color;
     }
 }

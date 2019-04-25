@@ -24,7 +24,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 import raytracer.Raytracer;
-import scene.Sphere;
+import shape.Sphere;
 import ui.Window;
 import scene.Scene;
 import utils.Globals;
@@ -105,21 +105,19 @@ public class Main {
     }
 
     private static void setupCameras(Scene renderScene) {
-        Log.warn("We don't have cameras, either");
 
-        Vec3 camPos = new Vec3(0, 0, 17);
+        Vec3 camPos = new Vec3(0, 0, -17);
         Vec3 viewPoint = new Vec3(0,0,0);
         Vec3 upVec = new Vec3(0,1,0);
-        float viewAngle = 35 * Globals.RAD;
-
+        float viewAngle = 90 * Globals.RAD;
 
         renderScene.createPerspCamera(camPos, viewPoint, upVec, viewAngle, IMAGE_WIDTH, IMAGE_HEIGHT);
 
     }
 
     private static void setupObjects(Scene renderScene) {
-        Sphere sphere = new Sphere(new Vec3(3,3,0), 1.5f);
-        renderScene.addObject(sphere);
+        Sphere sphere = new Sphere(new Vec3(0,0,.5f), 2f, new RgbColor(1,1,1));
+        //renderScene.addObject(sphere);
 
     }
 
