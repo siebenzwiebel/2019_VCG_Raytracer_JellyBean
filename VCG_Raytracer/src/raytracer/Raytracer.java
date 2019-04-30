@@ -182,7 +182,14 @@ public class Raytracer {
         // INTERSECTION
 
         RgbColor hitColor = object.getColor();
-        return hitColor;
+        float r = hitColor.red();
+        float b = hitColor.green();
+        float g = hitColor.blue();
+        float x = (inRay.getDirection().x+1);
+        float y = (inRay.getDirection().y+1);
+        float z = (inRay.getDirection().z+1);
+
+        return new RgbColor(r, g,b);
 
 
 

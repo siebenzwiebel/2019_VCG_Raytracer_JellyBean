@@ -6,7 +6,7 @@ import utils.algebra.Vec3;
 
 public class SceneObject {
 
-    protected Vec3 mPosition;
+    public Vec3 mPosition;
     protected RgbColor color;
 
     public SceneObject(Vec3 pos, RgbColor color){

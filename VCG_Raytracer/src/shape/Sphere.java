@@ -26,6 +26,7 @@ public class Sphere extends Shape {
 
         Vec4 ray4DDirection = new Vec4(ray.getDirection().x, ray.getDirection().y, ray.getDirection().z, 0);
         Vec4 ray4DOrigin = new Vec4(ray.getOrigin().x, ray.getOrigin().y, ray.getOrigin().z, 1);
+        Vec3 oc = (ray.getOrigin()).sub(mPosition);
 
         Vec4 newRay4DDirection = inverseTransformationMatrix.multVec3(ray4DDirection).normalize();
         Vec4 newRay4DOrigin = inverseTransformationMatrix.multVec3(ray4DOrigin);
@@ -35,8 +36,8 @@ public class Sphere extends Shape {
         Vec3 position = new Vec3(newRay4DOrigin.x, newRay4DOrigin.y, newRay4DOrigin.z);
 
         float a = direction.scalar(direction);
-        float b = 2*(position.x*direction.x + position.y*direction.y +position.z*direction.z );
-        float c = position.x*position.x + position.y*position.y + position.z*position.z - radius*radius;
+        float b = 2*oc.scalar(direction);
+        float c = oc.scalar(oc) - radius*radius;
 
         float discriminant = b*b - 4*a*c;
 
@@ -47,10 +48,14 @@ public class Sphere extends Shape {
         }
     }
 
+    public Vec3 getPos(){
+        return this.mPosition;
+    }
+
     public Matrix4x4 calculateTransformationMatrix(Vec3 pos, float scale){
         Matrix4x4 transMat = new Matrix4x4();
         Vec4 pos4D = new Vec4(pos.x, pos.y, pos.z, 1);
-        transMat = transMat.scale(scale).translateXYZW(pos4D);
+        transMat = transMat.translateXYZW(pos4D).scale(scale);
         return transMat;
     }
 
