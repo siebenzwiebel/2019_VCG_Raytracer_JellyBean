@@ -1,5 +1,6 @@
 package scene;
 
+import material.Material;
 import raytracer.Ray;
 import utils.RgbColor;
 import utils.algebra.Vec3;
@@ -8,11 +9,13 @@ public class SceneObject {
 
     public Vec3 mPosition;
     protected RgbColor color;
+    protected Material material;
 
-    public SceneObject(Vec3 pos, RgbColor color){
+    public SceneObject(Vec3 pos, RgbColor color, Material material){
 
         this.mPosition = pos;
         this.color = color;
+        this.material = material;
     }
 
     public float isHitByRay(Ray ray){
@@ -37,5 +40,9 @@ public class SceneObject {
 
     public RgbColor getColor() {
         return color;
+    }
+
+    public Material getMaterial() {
+        return material;
     }
 }

@@ -7,6 +7,10 @@ import utils.io.DataExporter;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 public class Window {
 
@@ -82,8 +86,11 @@ public class Window {
      **/
     public void exportRenderingToFile(BufferedImage renderImage, String text, int recursions){
         this.setOutputLabel(renderImage, text, recursions);
+        long timeInMillis = System.currentTimeMillis();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
+        Date resultdate = new Date(timeInMillis);
 
-        DataExporter.exportImageToPng(renderImage, mOutputTitle + ".png");
+        DataExporter.exportImageToPng(renderImage, mOutputTitle + "_" + sdf.format(resultdate) + ".png");
     }
 
 

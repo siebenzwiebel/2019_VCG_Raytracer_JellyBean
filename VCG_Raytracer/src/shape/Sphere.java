@@ -1,5 +1,6 @@
 package shape;
 
+import material.Material;
 import raytracer.Ray;
 import utils.RgbColor;
 import utils.algebra.Matrix4x4;
@@ -12,13 +13,11 @@ public class Sphere extends Shape {
     private Matrix4x4 transformationMatrix;
     private Matrix4x4 inverseTransformationMatrix;
 
-    public Sphere(Vec3 pos, float radius, RgbColor color) {
-        super(pos, color);
+    public Sphere(Vec3 pos, float radius, RgbColor color, Material material) {
+        super(pos, color, material);
         this.radius = radius;
         this.transformationMatrix = calculateTransformationMatrix(pos, radius);
         this.inverseTransformationMatrix = transformationMatrix.invert();
-        Log.print(transformationMatrix.toString());
-        Log.print(inverseTransformationMatrix.toString());
 
     }
 

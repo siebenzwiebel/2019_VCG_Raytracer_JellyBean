@@ -17,6 +17,8 @@
 package raytracer;
 
 import camera.PerspectiveCamera;
+import light.Light;
+import material.Material;
 import scene.Scene;
 import scene.SceneObject;
 import ui.Window;
@@ -64,38 +66,7 @@ public class Raytracer {
 
         for(float y = 0f; y < mBufferedImage.getHeight(); y++){
             for(float x = 0; x < mBufferedImage.getWidth(); x++){
-
-                    // screenpoint
-                    Vec2 screenPosition = new Vec2(x, y);
-
-                    Ray primaryRay = this.sendPrimaryRay(screenPosition);
-                    // backgroundcolor
-                    RgbColor color;
-                    // check if hit
-                    HashMap<SceneObject, Float> tValues= new HashMap<>();
-                    float t = POSITIVE_INFINITY;
-                    SceneObject objmin = new SceneObject(new Vec3(0,0,0), new RgbColor(0,0,0));
-                    Intersection intersection = new Intersection();
-
-                    for (SceneObject object:mScene.getShapeList()){
-
-
-
-                        // IMPLEMNT INTERSECTION AS CLASS!!!!!
-                        //float tmin = intersection.isHit(object, primaryRay);
-
-                        // check hit
-                        float tmin = object.isHitByRay(primaryRay);
-                        if (tmin != -1 && tmin < t){
-                            t = tmin;
-                            objmin = object;
-                        }
-                    }
-
-                    // get object by smallest t value
-
-                    color = traceRay(primaryRay, objmin);
-
+                    RgbColor color = traceRay(createPrimaryRay(new Vec2(x,y)));
 
                     mRenderWindow.setPixel(mBufferedImage, color, new Vec2(x, y));
 
@@ -104,112 +75,75 @@ public class Raytracer {
         exportRendering(mBufferedImage);
     }
 
-    private Ray createPrimaryRay(Vec3 position, Vec3 direction){
-
-        return new Ray(position, direction);
-
-    }
-
-    private Ray sendPrimaryRay(Vec2 pixelPoint){
+    private Ray createPrimaryRay(Vec2 pixelPoint){
 
         int x = (int) pixelPoint.x;
         int y = (int) pixelPoint.y;
 
         // get correct ray from camera
-        Ray ray = mScene.perspCamera.rayFor(x, y);
+        Ray primaryRay = mScene.perspCamera.rayFor(x, y);
         //Log.print(ray.toString());
 
 
-
-
-    /*
-        Vec3 defaultPixel = (mScene.perspCamera.pixelToNDC(pixelPoint)).normalize();
-        //Log.print("defaultpixel: " + defaultPixel.toString());
-
-        Vec3 worldOrigin = mScene.perspCamera.getPos();
-
-        Vec3 camLookAt = mScene.perspCamera.getLookAt();
-
-        Vec3 camWorldUp = mScene.perspCamera.getWorldUp();
-        Vec3 camUp = mScene.perspCamera.getUp();
-        //Log.print(camUp.toString() + camWorldUp.toString());
-
-        //Log.print("camLookAt: " + camLookAt.toString());
-        //Log.print("worldLookAt: " + worldLookAt.toString());
-        //Log.print("worldLookAt: " + worldLookAt.toString());
-
-        // die mATRIXHIER STIRBT BEI 0 0 0 DAS IST ECHT DOOF
-
-        // WAS WIRD HIER ÜBERHAUPT ROTIERT? WiRD DER bUMs NEU AUSGErIChTET?#
-                                // IST DER WORLD UP RICHTIG??????
-
-        Matrix4x4 cameraToWorld = Matrix4x4.directionalRotationMatrix(camUp, camWorldUp);
-
-        Vec4 direction4D = cameraToWorld.multVec3(new Vec4(defaultPixel.x, defaultPixel.y, defaultPixel.z, 0));
-        Vec3 worldDirection = new Vec3(direction4D.x, direction4D.y, direction4D.z);
-        ;
-        //worldDirection = worldDirection.sub(worldOrigin);
-        // worldDirection = worldDirection.normalize(); // WHY SHIT SO SMALL????
-        //Log.print(worldDirection.toString());
-        worldDirection = worldDirection.add(mScene.perspCamera.getLookAt()).normalize();
-        //Log.print("worldDirection: " + worldDirection.toString());
-
-
-        Ray primaryRay = createPrimaryRay(worldOrigin, worldDirection);
-
-
-
-        /*
-        Matrix4x4 rotationMatrix = Matrix4x4.directionalRotationMatrix(defaultOrigin, worldOrigin);
-
-
-        //Rotating the pixel to match the rotation of the camera(must be done as a 4DVector)
-        Vec4 direction4D = rotationMatrix.multVec3(new Vec4(direction.x, direction.y, direction.z, 1));
-        //Back to 3DVector
-        direction = new Vec3(direction4D.x, direction4D.y, direction4D.z);
-        //Putting the rotated pixel in front of the camera
-        //direction = direction.add(mScene.perspCamera.getLookAt());
-        //Log.print("direction: " + direction.toString());
-        */
-
-        Ray primaryRay = createPrimaryRay(ray.getOrigin(), ray.getDirection());
-
         return primaryRay;
+
     }
 
-    private RgbColor traceRay(Ray inRay, SceneObject object){
+    private Ray createSecondaryRay(Vec3 position, Vec3 direction){
 
-        // INTERSECTION
+        return new Ray(position, direction);
 
-        RgbColor hitColor = object.getColor();
-        float r = hitColor.red();
-        float b = hitColor.green();
-        float g = hitColor.blue();
-        float x = (inRay.getDirection().x+1);
-        float y = (inRay.getDirection().y+1);
-        float z = (inRay.getDirection().z+1);
+        // EVTL MUSS HIER NOCH WAS PASSIEREN. KEINE AHNUNG.
+        // ERSTMAL MACHTDAS DING NUR NEN RAY AUS ORIGIN UND DIRECTION
 
-        return new RgbColor(r, g,b);
+    }
+
+    private RgbColor traceRay(Ray ray){
+
+        RgbColor finalColor;
+
+        // CHECK FOR INTERSECTION
+        float t = POSITIVE_INFINITY; // distance
+        SceneObject hitObject = null;
+        boolean hit = false;
+        RgbColor hitObjectColor = new RgbColor(0,0,0);
+        RgbColor calcColor = new RgbColor(0,0,0);
+        Material hitObjectMaterial;
+
+        for (SceneObject object:mScene.getShapeList()){
+
+            float tmin = object.isHitByRay(ray);
+            if (tmin != -1 && tmin < t){
+                t = tmin;
+                hitObjectColor = object.getColor();
+                //Log.print("" + hitObjectColor);
+                hitObject = object;
+                hit = true;
+            }
+
+            if (hit) {
+
+                for (Light light:mScene.getLightList()) {
+
+                    Ray secondaryRay = createSecondaryRay(ray.at(tmin), light.getPosition());
+                    Material mat = hitObject.getMaterial();
+                    calcColor = calcColor.add(mat.calculateColor(secondaryRay, light, hitObject));
+
+                }
+            }
 
 
-
-        /*
-
-        // here comes all the magic
-        //
-        //
-        //
-        // ...
-        // this could be your favourite color!
-        //Log.print("X: " + direction.x + " Y: " + direction.y + " Z: " + direction.z);
-        //Log.print("x: " + (direction.x+1)/2 + " y: " + (direction.y+1)/2 + " z" + (direction.z+1)/2);
-        float color = direction.x + direction.y + direction.z;
-         */
+            // calculate pixel color from hitObjectColor and return valuees from light color bums.
+            // HIER ANSETZEN FÜR RAY (INTERSECTION POINT -> LIGHT)
+            // Wir HABEN ray direction und distance (cam-> object), wir BRAUCHEN genauen intersection point.
+            //Log.print("hit*calc" + hitObjectColor)
 
 
-        //Vec3 direction = inRay.getDirection();
-        //Log.print("color: " + direction.toString());
-        //return new RgbColor((direction.x+1)/2,(direction.y+1)/2,(direction.z+1)/2);
+        }
+
+        hitObjectColor = hitObjectColor.multRGB(calcColor);
+
+        return hitObjectColor;
 
     }
 
