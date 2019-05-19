@@ -42,6 +42,7 @@ public class Raytracer {
     private Window mRenderWindow;
     private Scene mScene;
     private long mtStart;
+    private int currentRecursion = 0;
 
     public Raytracer(Scene scene, Window renderWindow){
         Log.print(this, "Init");
@@ -49,10 +50,11 @@ public class Raytracer {
         mScene = scene;
         mtStart = System.currentTimeMillis();
         mBufferedImage = renderWindow.getBufferedImage();
+
     }
 
-    public void exportRendering(BufferedImage renderImage){
-        mRenderWindow.exportRenderingToFile(renderImage, String.valueOf(stopTime(mtStart)), 1);
+    public void exportRendering(BufferedImage renderImage, int recursion){
+        mRenderWindow.exportRenderingToFile(renderImage, String.valueOf(stopTime(mtStart)), recursion-1);
     }
 
     private static double stopTime(long tStart){
@@ -72,7 +74,7 @@ public class Raytracer {
 
             }
         }
-        exportRendering(mBufferedImage);
+        exportRendering(mBufferedImage, Globals.recursionDepth);
     }
 
     private Ray createPrimaryRay(Vec2 pixelPoint){
@@ -82,7 +84,7 @@ public class Raytracer {
 
         // get correct ray from camera
         Ray primaryRay = mScene.perspCamera.rayFor(x, y);
-        //Log.print(ray.toString());
+        //Log.print(primaryRay.toString());
 
 
         return primaryRay;
@@ -91,59 +93,78 @@ public class Raytracer {
 
     private Ray createSecondaryRay(Vec3 position, Vec3 direction){
 
-        return new Ray(position, direction);
+        direction = (direction.sub(position)).normalize();
+        position = position.add(direction.multScalar(Globals.epsilon));
+        Ray secondaryRay = new Ray(position, direction);
+        //Log.print(secondaryRay.toString());
+        return secondaryRay;
+
 
         // EVTL MUSS HIER NOCH WAS PASSIEREN. KEINE AHNUNG.
         // ERSTMAL MACHTDAS DING NUR NEN RAY AUS ORIGIN UND DIRECTION
 
     }
 
-    private RgbColor traceRay(Ray ray){
-
-        RgbColor finalColor;
-
+    private RgbColor traceRay(Ray ray) {
+        currentRecursion++;
         // CHECK FOR INTERSECTION
         float t = POSITIVE_INFINITY; // distance
         SceneObject hitObject = null;
         boolean hit = false;
-        RgbColor hitObjectColor = new RgbColor(0,0,0);
-        RgbColor calcColor = new RgbColor(0,0,0);
-        Material hitObjectMaterial;
+        RgbColor calcColor = new RgbColor(0, 0, 0);
+        RgbColor bgColor = new RgbColor(0,0,0);
 
-        for (SceneObject object:mScene.getShapeList()){
 
-            float tmin = object.isHitByRay(ray);
-            if (tmin != -1 && tmin < t){
-                t = tmin;
-                hitObjectColor = object.getColor();
-                //Log.print("" + hitObjectColor);
-                hitObject = object;
-                hit = true;
+            for (SceneObject object : mScene.getShapeList()) {
+
+                float tmin = object.isHitByRay(ray);
+                if (tmin != -1 && tmin < t) {
+                    t = tmin;
+                    //Log.print(" " + t);
+                    hitObject = object;
+                    hit = true;
+                }
+
             }
 
             if (hit) {
 
-                for (Light light:mScene.getLightList()) {
-
-                    Ray secondaryRay = createSecondaryRay(ray.at(tmin), light.getPosition());
+                for (Light light : mScene.getLightList()) {
+                    Ray secondaryRay = createSecondaryRay(ray.at(t), light.getPosition());
                     Material mat = hitObject.getMaterial();
-                    calcColor = calcColor.add(mat.calculateColor(secondaryRay, light, hitObject));
+                    boolean inShadow = false;
+                    /*
+                    for (SceneObject shadowingObject : mScene.getShapeList()) {
+
+                        float tmin2 = shadowingObject.isHitByRay(secondaryRay);
+                        float tLight = (secondaryRay.getOrigin().distance(light.getPosition())) / secondaryRay.getDirection().length();
+                        //Log.print("tmin2: " + tmin2 + " tLight: " + tLight);
+
+                        if (tmin2 != -1 && tmin2 < tLight) {
+                            //Log.print("tmin2: " + tmin2 + " tLight: " + tLight);
+                            //t = tmin2;
+                            //Log.print("" + hitObjectColor);
+                            //hitObject = object;
+                            inShadow = true;
+                            break;
+                        }
+
+                    }
+                       */
+                    if (!inShadow){
+                        calcColor = calcColor.add(mat.calculateColor(secondaryRay, light, hitObject));
+                    }
+                    else {
+                        //calcColor = new RgbColor(0,0,0).add(hitObject.getColor().multScalar(Globals.ambient));
+                    }
+
 
                 }
             }
 
 
-            // calculate pixel color from hitObjectColor and return valuees from light color bums.
-            // HIER ANSETZEN FÜR RAY (INTERSECTION POINT -> LIGHT)
-            // Wir HABEN ray direction und distance (cam-> object), wir BRAUCHEN genauen intersection point.
-            //Log.print("hit*calc" + hitObjectColor)
 
-
-        }
-
-        hitObjectColor = hitObjectColor.multRGB(calcColor);
-
-        return hitObjectColor;
+        return calcColor;
 
     }
 

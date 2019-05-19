@@ -26,6 +26,7 @@
 import light.PointLight;
 import material.LambertMaterial;
 import raytracer.Raytracer;
+import shape.Plane;
 import shape.Sphere;
 import ui.Window;
 import scene.Scene;
@@ -103,12 +104,12 @@ public class Main {
     }
 
     private static void setupLights(Scene renderScene) {
-        PointLight light1 = new PointLight(new Vec3(-3,3,0), new RgbColor(1,0,0), 1);
-        PointLight light2 = new PointLight(new Vec3(0,3,0), new RgbColor(0,1,0), 1);
-        PointLight light3 = new PointLight(new Vec3(3,3,0), new RgbColor(0,0,1), 1);
+        PointLight light1 = new PointLight(new Vec3(0,9,-20), new RgbColor(1,1,1), 1f);
+        PointLight light2 = new PointLight(new Vec3(0,3,0), new RgbColor(0,1,1), .5f);
+        PointLight light3 = new PointLight(new Vec3(3,3,0), new RgbColor(1,0,1), .5f);
         renderScene.addLight(light1);
-        renderScene.addLight(light2);
-        renderScene.addLight(light3);
+        //renderScene.addLight(light2);
+        //renderScene.addLight(light3);
     }
 
     private static void setupCameras(Scene renderScene) {
@@ -124,20 +125,28 @@ public class Main {
 
     private static void setupObjects(Scene renderScene) {
 
-        Sphere sphere1 = new Sphere(new Vec3(0,0,-3), 1.5f, new RgbColor(1,1,1), new LambertMaterial());
-        Sphere sphere2 = new Sphere(new Vec3(0,0,-1.5f), 1.5f, new RgbColor(0,1,0), new LambertMaterial());
-        Sphere sphere3 = new Sphere(new Vec3(1.5f,0,0), 1f, new RgbColor(0,0,1), new LambertMaterial());
-
-
+        Sphere sphere1 = new Sphere(new Vec3(-5,-6,-30), 3f, new RgbColor(1,0,0), new LambertMaterial());
+        Sphere sphere2 = new Sphere(new Vec3(5,-6,-20), 3f, new RgbColor(0,1,0), new LambertMaterial());
 
         renderScene.addObject(sphere1);
-        //renderScene.addObject(sphere2);
-        //renderScene.addObject(sphere3);
+        renderScene.addObject(sphere2);
 
 
     }
 
     private static void setupCornellBox(Scene renderScene) {
+        Plane planeBack = new Plane(new Vec3(0,0,-40), new RgbColor(1,1,1), new LambertMaterial(), new Vec3(0,0,1));
+        Plane planeLeft = new Plane(new Vec3(-12,0,0), new RgbColor(1,0,0), new LambertMaterial(), new Vec3(1,0,0));
+        Plane planeRight = new Plane(new Vec3(12,0,0), new RgbColor(0,0,1), new LambertMaterial(), new Vec3(-1,0,0));
+        Plane planeTop = new Plane(new Vec3(0,9,0), new RgbColor(1,1, 1), new LambertMaterial(), new Vec3(0,-1,0));
+        Plane planeBottom = new Plane(new Vec3(0,-9,0), new RgbColor(1,1,1), new LambertMaterial(), new Vec3(0,1,0));
+
+
+        renderScene.addObject(planeBack);
+        renderScene.addObject(planeLeft);
+        renderScene.addObject(planeRight);
+        renderScene.addObject(planeTop);
+        renderScene.addObject(planeBottom);
 
     }
 

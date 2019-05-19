@@ -3,6 +3,7 @@ package material;
 import light.Light;
 import raytracer.Ray;
 import scene.SceneObject;
+import utils.Globals;
 import utils.RgbColor;
 import utils.algebra.Vec3;
 import utils.io.Log;
@@ -15,7 +16,7 @@ public class LambertMaterial extends Material {
         RgbColor lambertColor;
 
         Vec3 normalVector = (lightRay.getOrigin().sub(object.getPosition())).normalize();
-        Vec3 lightVector = (lightRay.getDirection().sub(lightRay.getOrigin())).normalize();
+        Vec3 lightVector = lightRay.getDirection().normalize();
 
         // calculate dis shit
         // Id = Il*rd
@@ -45,9 +46,9 @@ public class LambertMaterial extends Material {
 
         // L_d = k_d * Imax(0, N*L)
         lambertColor = new RgbColor(
-                lightDiffuse * light.getColor().red() * light.getIntensity(),
-                lightDiffuse * light.getColor().green() * light.getIntensity(),
-                lightDiffuse * light.getColor().blue() * light.getIntensity()
+                (lightDiffuse * light.getColor().red() * light.getIntensity()) + (Globals.ambient * (object.getColor().red() ) ),
+                (lightDiffuse * light.getColor().green() * light.getIntensity()) + (Globals.ambient * (object.getColor().green() ) ),
+                (lightDiffuse * light.getColor().blue() * light.getIntensity()) + (Globals.ambient * (object.getColor().blue() ) )
         );
         //Log.print("lambertColor: " + lambertColor);
 

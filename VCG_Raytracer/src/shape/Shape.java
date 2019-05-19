@@ -13,4 +13,6 @@ public class Shape extends SceneObject {
     public boolean intersect(){
         return true;
     }
+
+
 }
