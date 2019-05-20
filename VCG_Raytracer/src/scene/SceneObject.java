@@ -10,6 +10,7 @@ public class SceneObject {
     public Vec3 mPosition;
     protected RgbColor color;
     protected Material material;
+    protected Vec3 normal;
 
     public SceneObject(Vec3 pos, RgbColor color, Material material){
 
@@ -45,4 +46,6 @@ public class SceneObject {
     public Material getMaterial() {
         return material;
     }
+
+    public Vec3 getNormal(Vec3 intersection){return normal;};
 }

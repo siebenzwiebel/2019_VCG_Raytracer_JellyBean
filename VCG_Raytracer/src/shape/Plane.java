@@ -15,18 +15,19 @@ public class Plane extends Shape {
         this.direction = direction;
     }
 
-    public Vec3 getNormal(Vec3 pos, Vec3 dir){
-        Vec3 normal = dir.sub(pos).normalize();
+    public Vec3 getNormal(Vec3 intersection){
+        Vec3 normal = (direction.sub(mPosition)).normalize();
         return normal;
     }
 
     public float isHitByRay(Ray ray){
 
-        Vec3 normal = this.getNormal(this.mPosition, this.direction);
-        float denom = this.mPosition.scalar(normal.multScalar(-1));
+        Vec3 normal = this.getNormal(ray.getOrigin());
+        float denom = normal.scalar(ray.getDirection());
         if (Math.abs(denom) > Globals.epsilon){
-            float t = -1 * (denom + ray.getOrigin().scalar(normal)) / ray.getDirection().scalar(normal);
-            if (t >= 0){
+            Vec3 difference = mPosition.sub(ray.getOrigin());
+            float t = difference.scalar(normal) / denom;
+            if (t > Globals.epsilon){
                 return t;
             }
             else {

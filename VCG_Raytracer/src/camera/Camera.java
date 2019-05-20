@@ -10,7 +10,7 @@ public abstract class Camera {
 
 
 
-    protected final Vec3 e;
+    public final Vec3 e;
     protected Vec3 g;
     protected Vec3 gCalc;
     protected final Vec3 t;
@@ -33,7 +33,6 @@ public abstract class Camera {
         //          g
         //  w = - -----
         //         |g|
-        // TODO FIX FOR g = 0/0/0
 
         this.w = gCalc.multScalar(1.0f / gCalc.length()).multScalar(-1.0f);
 
@@ -68,9 +67,13 @@ public abstract class Camera {
     }
 
     public Vec3 calcg(Vec3 e, Vec3 g){
-        Log.print("g: " + g.toString());
-        Log.print("e: " + e.toString());
-        Log.print("g-e: " + (g.sub(e)).toString());
+        //Log.print("g: " + g.toString());
+        //Log.print("e: " + e.toString());
+        //Log.print("g-e: " + (g.sub(e)).toString());
         return g.sub(e);
+    }
+
+    public Vec3 getPos() {
+        return e;
     }
 }

@@ -45,7 +45,7 @@ public class Raytracer {
     private int currentRecursion = 0;
 
     public Raytracer(Scene scene, Window renderWindow){
-        Log.print(this, "Init");
+        //Log.print(this, "Init");
         mRenderWindow = renderWindow;
         mScene = scene;
         mtStart = System.currentTimeMillis();
@@ -53,8 +53,8 @@ public class Raytracer {
 
     }
 
-    public void exportRendering(BufferedImage renderImage, int recursion){
-        mRenderWindow.exportRenderingToFile(renderImage, String.valueOf(stopTime(mtStart)), recursion-1);
+    public void exportRendering(BufferedImage renderImage, int recursion, int frame){
+        mRenderWindow.exportRenderingToFile(renderImage, String.valueOf(stopTime(mtStart)), recursion-1, frame);
     }
 
     private static double stopTime(long tStart){
@@ -63,8 +63,8 @@ public class Raytracer {
         return tDelta / 1000.0;
     }
 
-    public void renderScene(){
-        Log.print(this, "Prepare rendering at " + String.valueOf(stopTime(mtStart)));
+    public void renderScene(int frame){
+        //Log.print(this, "Prepare rendering at " + String.valueOf(stopTime(mtStart)));
 
         for(float y = 0f; y < mBufferedImage.getHeight(); y++){
             for(float x = 0; x < mBufferedImage.getWidth(); x++){
@@ -74,7 +74,7 @@ public class Raytracer {
 
             }
         }
-        exportRendering(mBufferedImage, Globals.recursionDepth);
+        exportRendering(mBufferedImage, Globals.recursionDepth, frame);
     }
 
     private Ray createPrimaryRay(Vec2 pixelPoint){
@@ -94,7 +94,7 @@ public class Raytracer {
     private Ray createSecondaryRay(Vec3 position, Vec3 direction){
 
         direction = (direction.sub(position)).normalize();
-        position = position.add(direction.multScalar(Globals.epsilon));
+        position = (position.add(direction.multScalar(Globals.epsilon)));
         Ray secondaryRay = new Ray(position, direction);
         //Log.print(secondaryRay.toString());
         return secondaryRay;
@@ -110,6 +110,7 @@ public class Raytracer {
         // CHECK FOR INTERSECTION
         float t = POSITIVE_INFINITY; // distance
         SceneObject hitObject = null;
+        SceneObject shadowObject = null;
         boolean hit = false;
         RgbColor calcColor = new RgbColor(0, 0, 0);
         RgbColor bgColor = new RgbColor(0,0,0);
@@ -133,33 +134,38 @@ public class Raytracer {
                     Ray secondaryRay = createSecondaryRay(ray.at(t), light.getPosition());
                     Material mat = hitObject.getMaterial();
                     boolean inShadow = false;
-                    /*
+
                     for (SceneObject shadowingObject : mScene.getShapeList()) {
-
-                        float tmin2 = shadowingObject.isHitByRay(secondaryRay);
-                        float tLight = (secondaryRay.getOrigin().distance(light.getPosition())) / secondaryRay.getDirection().length();
-                        //Log.print("tmin2: " + tmin2 + " tLight: " + tLight);
-
-                        if (tmin2 != -1 && tmin2 < tLight) {
+                        if (shadowingObject != hitObject) {
+                            float tmin2 = shadowingObject.isHitByRay(secondaryRay);
+                            float tLight = (light.getPosition().sub(secondaryRay.getOrigin())).length();
                             //Log.print("tmin2: " + tmin2 + " tLight: " + tLight);
-                            //t = tmin2;
-                            //Log.print("" + hitObjectColor);
-                            //hitObject = object;
-                            inShadow = true;
-                            break;
+
+
+
+                            if (tmin2 > 0 && tmin2 < tLight) {
+                                //Log.print("tmin2: " + tmin2 + " tLight: " + tLight);
+                                //t = tmin2;
+                                //Log.print("" + hitObjectColor);
+                                //hitObject = object;
+                                shadowObject = shadowingObject;
+                                inShadow = true;
+                                break;
+                            }
                         }
 
                     }
-                       */
+
                     if (!inShadow){
-                        calcColor = calcColor.add(mat.calculateColor(secondaryRay, light, hitObject));
+                        calcColor = calcColor.add(mat.calculateColor(secondaryRay, light, hitObject, mScene) );
                     }
                     else {
-                        //calcColor = new RgbColor(0,0,0).add(hitObject.getColor().multScalar(Globals.ambient));
                     }
 
 
                 }
+                calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
+
             }
 
 

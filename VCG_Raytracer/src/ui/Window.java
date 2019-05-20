@@ -1,5 +1,6 @@
 package ui;
 
+import utils.Globals;
 import utils.RgbColor;
 import utils.algebra.Vec2;
 import utils.io.DataExporter;
@@ -63,12 +64,12 @@ public class Window {
     /**
      Draw debug information
      **/
-    private void setOutputLabel(BufferedImage renderImage, String text, int recursions){
+    private void setOutputLabel(BufferedImage renderImage, String text, int recursions, int frame){
         Graphics graphic = renderImage.getGraphics();
         graphic.setColor(Color.black);
         graphic.fill3DRect(0,mHeight - 30,mWidth,mHeight,true);
         graphic.setColor(Color.green);
-        graphic.drawString("Elapsed rendering time: " + text + " sec, Recursions: " + recursions, 10, mHeight - 10);
+        graphic.drawString("Elapsed rendering time: " + text + " sec, Recursions: " + recursions + ", Frame: " + frame + "/" + Globals.frames, 10, mHeight - 10);
 
         mFrame.repaint();
     }
@@ -84,13 +85,13 @@ public class Window {
     /**
      Export the rendering to an PNG image with rendering information
      **/
-    public void exportRenderingToFile(BufferedImage renderImage, String text, int recursions){
-        this.setOutputLabel(renderImage, text, recursions);
-        long timeInMillis = System.currentTimeMillis();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
-        Date resultdate = new Date(timeInMillis);
+    public void exportRenderingToFile(BufferedImage renderImage, String text, int recursions, int frame){
+        this.setOutputLabel(renderImage, text, recursions, frame);
+        //long timeInMillis = System.currentTimeMillis();
+        //SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
+        //Date resultdate = new Date(timeInMillis);
 
-        DataExporter.exportImageToPng(renderImage, mOutputTitle + "_" + sdf.format(resultdate) + ".png");
+        DataExporter.exportImageToPng(renderImage, mOutputTitle + "_" + frame + ".png");
     }
 
 

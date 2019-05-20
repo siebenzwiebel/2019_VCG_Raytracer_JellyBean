@@ -2,6 +2,7 @@ package shape;
 
 import material.Material;
 import raytracer.Ray;
+import utils.Globals;
 import utils.RgbColor;
 import utils.algebra.Matrix4x4;
 import utils.algebra.Vec3;
@@ -63,6 +64,11 @@ public class Sphere extends Shape {
         Vec4 ray4D = new Vec4(ray.x, ray.y, ray.z, 1);
         ray4D = transformationMatrix.multVec3(ray4D);
         return new Vec3(ray4D.x, ray4D.y, ray4D.z);
+    }
+
+    public Vec3 getNormal(Vec3 intersection){
+        return (intersection.sub(this.mPosition)).normalize();
+
     }
 
 

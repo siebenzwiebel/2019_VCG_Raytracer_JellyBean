@@ -24,7 +24,7 @@ public class Scene {
     }
 
     public Scene(){
-        Log.print(this, "Init");
+        //Log.print(this, "Init");
         mShapeList = new ArrayList<>();
         mLightList = new ArrayList<>();
     }
