@@ -11,11 +11,20 @@ import utils.RgbColor;
 import utils.algebra.Vec3;
 import utils.io.Log;
 
-public class Phong
-        extends Material {
+public class Phong extends Material {
 
+    protected float k_a;
+    protected float k_d;
+    protected float k_s;
+
+    public Phong(float k_a, float k_d, float k_s) {
+        this.k_a = k_a;
+        this.k_d = k_d;
+        this.k_s = k_s;
+    }
 
     public RgbColor calculateColor(Ray lightRay, Light light, SceneObject object, Scene scene){
+
         RgbColor phongColor = new RgbColor(0,0,0);
         Vec3 campos = scene.perspCamera.getPos();
         //implement getnormal function for sphere
@@ -32,7 +41,7 @@ public class Phong
         // AMBIENT
         // I_a * k_a
 
-        float k_a = 0.2f*Globals.ambient;
+        k_a *= Globals.ambient;
         RgbColor I_a = new RgbColor(.1f, .1f, .1f);
         RgbColor I_in = light.getColor();
 
@@ -42,7 +51,6 @@ public class Phong
         // L_d = k_d * I_in( N*L)
 
         float L_N;
-        float k_d = 0.9f;
         // intensity of reflected light is proportional to cosine of angle between surface and incoming light direction
         // heißt: I_l ist proportional zu cos(theta) (=L*N)
 
@@ -71,23 +79,18 @@ public class Phong
 
         RgbColor lightSpecular = new RgbColor(0,0,0);
 
-        float n = 69;
-        float k_s = 1 - k_d;
+        float n = 12;
         Vec3 N = normalVector;
         Vec3 L = lightVector;
         Vec3 V = ((campos).sub(lightRay.getOrigin())).normalize();
 
-        Vec3 R = (N.multScalar(N.scalar(L)).sub(L)).multScalar(2);
+        Vec3 R = ((N.multScalar(N.scalar(L))).multScalar(2)).sub(L);
 
 
         float R_V = R.scalar(V);
 
-
-        for (int i=1; i<n; i++){
-            R_V *= R_V;
-        }
         if (R_V < 1.0 && R_V > 0.0){
-            lightSpecular = I_in.multScalar((k_s * ( ( n + 2 ) / (float)( 2 * Math.PI ) ) * R_V ));
+            lightSpecular = I_in.multScalar((k_s * ((n+2)/(2* (float) Math.PI)) * (float) Math.pow(R_V,n)));
         }
 
 

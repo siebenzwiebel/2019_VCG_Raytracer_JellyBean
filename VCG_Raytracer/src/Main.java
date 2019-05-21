@@ -48,10 +48,10 @@ public class Main {
 
     static final int IMAGE_WIDTH = 1920;
     static final int IMAGE_HEIGHT = 1080;
-    static final float bouncyness = .98f;
-    static final float friction = 0.99f;
-    static final float absorbtion = 0.9f;
-    static Vec3 velocity = new Vec3(.5f,0,.5f);
+    static final float bouncyness = .8f;
+    static final float friction = 0.8f;
+    static final float absorbtion = 0.85f;
+    static Vec3 velocity = new Vec3(.9f,0,.9f);
     static Vec3 acceleration = new Vec3(0, -.0981f, 0);
     static Vec3 spherePos = new Vec3(0, 6f, -20);
     static float sphereRadius = 1.5f;
@@ -125,9 +125,15 @@ public class Main {
         PointLight light3 = new PointLight(new Vec3(5,8.9f,-23f), new RgbColor(1,0,1), .3f);
 
         renderScene.addLight(light1);
-
         renderScene.addLight(light2);
         renderScene.addLight(light3);
+        /*
+        int n = 100;
+        for (int i = 0; i < n; i++){
+            renderScene.addLight(new PointLight(new Vec3(rand(-1, 1),8.9f, rand(-19, -21)), new RgbColor(1,1,1), rand(0,1)/n));
+        }
+        */
+
     }
 
     private static void setupCameras(Scene renderScene) {
@@ -177,21 +183,25 @@ public class Main {
             spherePos.z = -10 - sphereRadius ;
         }
 
-        Sphere sphere1 = new Sphere(spherePos, sphereRadius, new RgbColor(1,1,1), new Phong());
+        Sphere sphere1 = new Sphere(spherePos, sphereRadius, new RgbColor(1,1,1), new Phong(.3f, .4f, .6f));
         //Sphere sphere2 = new Sphere(new Vec3(5,-6,-20), 3f, new RgbColor(0,1,0), new Lambert());
         //Sphere sphere3 = new Sphere(new Vec3(4,-1.5f,-21), 1.5f, new RgbColor(1,1,1), new Lambert());
 
 
         // ADD THIS SPHERE (BOUNCY BOY = SPHERE 1) FOR ANIMATION AND SET FRAMES IN GLOBALS!!!!
-        //renderScene.addObject(sphere1);
+        renderScene.addObject(sphere1);
 
         //renderScene.addObject(sphere2);
         //renderScene.addObject(sphere3);
 
-
-        for (int i = 0; i < 20; i++){
-            renderScene.addObject(new Sphere(new Vec3(rand(-10, 10),rand(-9,9),rand(-40,-20)), rand(1,3), new RgbColor(rand(0,1),rand(0,1),rand(0,1)), new Phong()));
+        /*
+        for (int i = 0; i < 3; i++){
+            float k_d = rand(0,1);
+            float k_s = 1 - k_d;
+            renderScene.addObject(new Sphere(new Vec3(rand(-10, 10),rand(-9,9),rand(-40,-20)), rand(1,3), new RgbColor(rand(0,1),rand(0,1),rand(0,1)), new Phong(rand(0,1),k_d,k_s)));
         }
+        */
+
 
 
 

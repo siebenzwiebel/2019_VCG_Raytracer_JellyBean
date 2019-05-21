@@ -66,13 +66,22 @@ public class Raytracer {
     public void renderScene(int frame){
         //Log.print(this, "Prepare rendering at " + String.valueOf(stopTime(mtStart)));
 
-        for(float y = 0f; y < mBufferedImage.getHeight(); y++){
-            for(float x = 0; x < mBufferedImage.getWidth(); x++){
-                    RgbColor color = traceRay(createPrimaryRay(new Vec2(x,y)));
+        for(float y = 0f; y < mBufferedImage.getHeight(); y++) {
+            for (float x = 0f; x < mBufferedImage.getWidth(); x++) {
+                RgbColor color = new RgbColor(0, 0, 0);
+                /*
+                RgbColor stl = traceRay(createPrimaryRay(new Vec2(x - .25f, y + .25f)));
+                RgbColor str = traceRay(createPrimaryRay(new Vec2(x + .25f, y + .25f)));
+                RgbColor sbl = traceRay(createPrimaryRay(new Vec2(x - .25f, y - .25f)));
+                RgbColor sbr = traceRay(createPrimaryRay(new Vec2(x + .25f, y - .25f)));
+                */
+                color = traceRay(createPrimaryRay(new Vec2(x, y)));
 
-                    mRenderWindow.setPixel(mBufferedImage, color, new Vec2(x, y));
+                //color = (color.add(stl).add(str).add(sbl).add(sbr).add(sm)).multScalar(1f);
 
+                mRenderWindow.setPixel(mBufferedImage, color, new Vec2(x, y));
             }
+
         }
         exportRendering(mBufferedImage, Globals.recursionDepth, frame);
     }
