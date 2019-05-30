@@ -19,6 +19,7 @@ package raytracer;
 import camera.PerspectiveCamera;
 import light.Light;
 import material.Material;
+import material.Phong;
 import scene.Scene;
 import scene.SceneObject;
 import ui.Window;
@@ -43,6 +44,8 @@ public class Raytracer {
     private Scene mScene;
     private long mtStart;
     private int currentRecursion = 0;
+    int recursiveDepthMax = 1;
+    int recursiveDepth = 0;
 
     public Raytracer(Scene scene, Window renderWindow){
         //Log.print(this, "Init");
@@ -123,6 +126,8 @@ public class Raytracer {
         boolean hit = false;
         RgbColor calcColor = new RgbColor(0, 0, 0);
         RgbColor bgColor = new RgbColor(0,0,0);
+        float ref = 0;
+
 
 
             for (SceneObject object : mScene.getShapeList()) {
@@ -173,6 +178,24 @@ public class Raytracer {
 
 
                 }
+                int a=0;
+                a++;
+
+             /*   if(recursiveDepth <= recursiveDepthMax && hitObject.getMaterial().getReflectivity() != 0){
+                    recursiveDepth++;
+                    Vec3 N = hitObject.getNormal(ray.at(t)).normalize();
+                    Vec3 I = ray.getDirection().normalize();
+                    Vec3 refVec = I.sub(N.multScalar(2).multScalar(N.scalar(I)));
+                    Ray refRay = new Ray(ray.at(t),refVec.normalize());
+
+                    RgbColor refColor = traceRay(refRay);
+                    refColor = refColor.multScalar(hitObject.getMaterial().getReflectivity());
+
+                    calcColor = calcColor.add(refColor);
+
+                }*/
+
+
                 calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
 
             }

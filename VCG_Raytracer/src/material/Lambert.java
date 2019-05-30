@@ -9,9 +9,18 @@ import utils.RgbColor;
 import utils.algebra.Vec3;
 import utils.io.Log;
 
-public class Lambert
-        extends Material {
+public class Lambert extends Material {
+    public float reflectivity;
 
+
+
+    public Lambert(float reflectivity) {
+        this.reflectivity = reflectivity;
+    }
+
+    public float getReflectivity() {
+        return reflectivity;
+    }
 
     public RgbColor calculateColor(Ray lightRay, Light light, SceneObject object, Scene scene){
 

@@ -8,6 +8,9 @@ import utils.algebra.Vec3;
 public class SceneObject {
 
     public Vec3 mPosition;
+
+
+
     protected RgbColor color;
     protected Material material;
     protected Vec3 normal;
@@ -46,6 +49,7 @@ public class SceneObject {
     public Material getMaterial() {
         return material;
     }
+
 
     public Vec3 getNormal(Vec3 intersection){return normal;};
 }

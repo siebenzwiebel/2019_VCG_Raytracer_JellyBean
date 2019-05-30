@@ -16,11 +16,17 @@ public class Phong extends Material {
     protected float k_a;
     protected float k_d;
     protected float k_s;
+    public float reflectivity;
 
-    public Phong(float k_a, float k_d, float k_s) {
+    public Phong(float reflectivity,float k_a, float k_d, float k_s) {
+        this.reflectivity = reflectivity;
         this.k_a = k_a;
         this.k_d = k_d;
         this.k_s = k_s;
+    }
+
+    public float getReflectivity() {
+        return reflectivity;
     }
 
     public RgbColor calculateColor(Ray lightRay, Light light, SceneObject object, Scene scene){
