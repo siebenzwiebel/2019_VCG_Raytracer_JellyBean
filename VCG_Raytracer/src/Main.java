@@ -23,21 +23,23 @@
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+import material.Phong;
+import parser.Parser;
 import light.PointLight;
 import material.Lambert;
-import material.Phong;
 import raytracer.Raytracer;
 import shape.Plane;
-import shape.Sphere;
+import shape.Triangle;
 import ui.Window;
 import scene.Scene;
 import utils.Globals;
 import utils.RgbColor;
 import utils.algebra.Vec3;
 import utils.io.Log;
+import java.io.File;
 
-import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
+
+import java.io.File;
 
 
 // Main application class. This is the routine called by the JVM to run the program.
@@ -120,9 +122,9 @@ public class Main {
     }
 
     private static void setupLights(Scene renderScene) {
-        PointLight light1 = new PointLight(new Vec3(-5,8.9f,-23), new RgbColor(1,1,0), .3f);
-        PointLight light2 = new PointLight(new Vec3(0,8.9f,-17), new RgbColor(0,1,1), .3f);
-        PointLight light3 = new PointLight(new Vec3(5,8.9f,-23f), new RgbColor(1,0,1), .3f);
+        PointLight light1 = new PointLight(new Vec3(-5,8.9f,-10), new RgbColor(1,0,0), .25f);
+        PointLight light2 = new PointLight(new Vec3(0,8.9f,-17), new RgbColor(0,0,1), .25f);
+        PointLight light3 = new PointLight(new Vec3(5,8.9f,-23f), new RgbColor(0,1,0), .25f);
 
         renderScene.addLight(light1);
         renderScene.addLight(light2);
@@ -149,47 +151,57 @@ public class Main {
 
     private static void setupObjects(Scene renderScene, int frame) {
 
-        Vec3 boundingMin = new Vec3(-12, -9, -40);
-        Vec3 boundingMax = new Vec3(12, 9, -10);
+        parser.Parser.loadObjFile("C:\\Users\\Timo\\Desktop\\Tree.obj");
+
+        for(int i=0; i <= Parser.i-1 ; i++){
+            Vec3 e0 = new Vec3();
+            Vec3 e1 = new Vec3();
+            Vec3 e2 = new Vec3();
+            Vec3 c = new Vec3();
+            int translatex = 1;
+            int translatey = -2;
+            int translatez = -15;
+            int scale = 1;
+            e0.x = ((Parser.va.get((int)(Parser.fa.get(i).x - 1)).x)+translatex)*scale;
+            e0.y = ((Parser.va.get((int)(Parser.fa.get(i).x - 1)).y)+translatey)*scale;
+            e0.z = ((Parser.va.get((int)(Parser.fa.get(i).x - 1)).z)+translatez)*scale;
+            e1.x = ((Parser.va.get((int)(Parser.fa.get(i).y - 1)).x)+translatex)*scale;
+            e1.y = ((Parser.va.get((int)(Parser.fa.get(i).y - 1)).y)+translatey)*scale;
+            e1.z = ((Parser.va.get((int)(Parser.fa.get(i).y - 1)).z)+translatez)*scale;
+            e2.x = ((Parser.va.get((int)(Parser.fa.get(i).z - 1)).x)+translatex)*scale;
+            e2.y = ((Parser.va.get((int)(Parser.fa.get(i).z - 1)).y)+translatey)*scale;
+            e2.z = ((Parser.va.get((int)(Parser.fa.get(i).z - 1)).z)+translatez)*scale;
 
 
-        velocity = velocity.add(acceleration);
-        spherePos = spherePos.add(velocity);
-
-        if (spherePos.x <= -12f + sphereRadius){
-            velocity.x *= -1 * absorbtion;
-            spherePos.x = -12 + sphereRadius ;
-        }
-        if (spherePos.x >= 12f - sphereRadius){
-            velocity.x *= -1 * absorbtion;
-            spherePos.x = 12 - sphereRadius ;
-        }
-        if (spherePos.y <= -9f + sphereRadius){
-            velocity.y *= -1 * bouncyness;
-            spherePos.y = -9 + sphereRadius ;
-            velocity.x *= friction;
-            velocity.z *= friction;
-        }
-        if (spherePos.y >= 9f - sphereRadius){
-            velocity.y *= -1 * bouncyness;
-            spherePos.y = 9 - sphereRadius ;
-        }
-        if (spherePos.z <= -40f + sphereRadius){
-            velocity.z *= -1 * absorbtion;
-            spherePos.z = -40 + sphereRadius ;
-        }
-        if (spherePos.z >= -10 - sphereRadius){
-            velocity.z *= -1 * absorbtion;
-            spherePos.z = -10 - sphereRadius ;
+            Triangle triangle = new Triangle(new Vec3(0,0,0), new RgbColor((float)Math.random(),(float)Math.random(),(float)Math.random()),new Phong(0.3f,0.4f,0.6f), e0,e1,e2);
+            renderScene.addObject(triangle);
         }
 
-        Sphere sphere1 = new Sphere(spherePos, sphereRadius, new RgbColor(1,1,1), new Phong(.3f, .4f, .6f));
+
+
+
+        //Sphere sphere1 = new Sphere(spherePos, sphereRadius, new RgbColor(0,0,1), new Phong(.3f, .4f, .6f));
+       // Triangle triangle1 = new Triangle(new Vec3(0,0,0), new RgbColor(1,0,0),new Phong(0.3f,0.4f,0.6f), new Vec3(0-5,-0.353553f-5,-0.707107f-25),new Vec3(0.707107f-5,-0.353553f-5,0-25),new Vec3(-0.707107f-5,-0.353553f-5,0-25));
+       // Triangle triangle2 = new Triangle(new Vec3(0,0,0), new RgbColor(0,1,0),new Phong(0.3f,0.4f,0.6f), new Vec3(-0.707107f-5,-0.353553f-5,0-25),new Vec3(0.707107f-5,-0.353553f-5,0-25),new Vec3(0-5,-0.353553f-5,0.707107f-25));
+        //Triangle triangle3 = new Triangle(new Vec3(0,0,0), new RgbColor(0,0,1),new Phong(0.3f,0.4f,0.6f), new Vec3(0-5,-0.353553f-5,-0.707107f-25),new Vec3(-0.707107f-5,-0.353553f-5,0-25),new Vec3(0-5,-0.353553f-5,0-25));
+        //Triangle triangle4 = new Triangle(new Vec3(0,0,0), new RgbColor(1,1,0),new Phong(0.3f,0.4f,0.6f), new Vec3(-0.707107f-5,-0.353553f-5,0-25),new Vec3(0-5,-0.353553f-5,0.707107f-25),new Vec3(0-5,0.353553f-5,0-25));
+       // Triangle triangle5 = new Triangle(new Vec3(0,0,0), new RgbColor(1,0,1),new Phong(0.3f,0.4f,0.6f), new Vec3(0-5,-0.353553f-5,0.707107f-25),new Vec3(0.707107f-5,-0.353553f-5,0-25),new Vec3(0-5,0.353553f-5,0-25));
+       // Triangle triangle6 = new Triangle(new Vec3(0,0,0), new RgbColor(1,1,1),new Phong(0.3f,0.4f,0.6f), new Vec3(0.707107f-5,-0.353553f-5,0-25),new Vec3(0-5,-0.353553f-5,-0.707107f-25),new Vec3(0-5,0.353553f-5,0-25));
+
+
         //Sphere sphere2 = new Sphere(new Vec3(5,-6,-20), 3f, new RgbColor(0,1,0), new Lambert());
         //Sphere sphere3 = new Sphere(new Vec3(4,-1.5f,-21), 1.5f, new RgbColor(1,1,1), new Lambert());
 
 
         // ADD THIS SPHERE (BOUNCY BOY = SPHERE 1) FOR ANIMATION AND SET FRAMES IN GLOBALS!!!!
-        renderScene.addObject(sphere1);
+       // renderScene.addObject(triangle1);
+      //  renderScene.addObject(triangle2);
+      //  renderScene.addObject(triangle3);
+      //  renderScene.addObject(triangle4);
+     //   renderScene.addObject(triangle5);
+      //  renderScene.addObject(triangle6);
+
+
 
         //renderScene.addObject(sphere2);
         //renderScene.addObject(sphere3);

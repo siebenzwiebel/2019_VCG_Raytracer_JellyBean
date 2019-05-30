@@ -168,8 +168,8 @@ public class Raytracer {
                     if (!inShadow){
                         calcColor = calcColor.add(mat.calculateColor(secondaryRay, light, hitObject, mScene) );
                     }
-                    else {
-                    }
+
+
 
 
                 }
