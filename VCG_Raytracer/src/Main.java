@@ -49,15 +49,15 @@ public class Main {
     /** ****************************************************** */
     /** ****************** CONSTANTS GO HERE ****************** **/
 
-    static final int IMAGE_WIDTH = 800;
-    static final int IMAGE_HEIGHT = 600;
+    static final int IMAGE_WIDTH = 1920;
+    static final int IMAGE_HEIGHT = 1080;
     static final float bouncyness = .8f;
     static final float friction = 0.8f;
     static final float absorbtion = 0.85f;
     static Vec3 velocity = new Vec3(.9f,0,.9f);
     static Vec3 acceleration = new Vec3(0, -.0981f, 0);
-    static Vec3 spherePos = new Vec3(0, 6f, -20);
-    static float sphereRadius = 1.5f;
+    static Vec3 spherePos = new Vec3(4, -3f, -20);
+    static float sphereRadius = 4.5f;
 
 
 
@@ -152,7 +152,7 @@ public class Main {
 
     private static void setupObjects(Scene renderScene, int frame) {
 
-    /*    parser.Parser.loadObjFile("C:\\Users\\Timo\\Desktop\\Tree.obj");
+     /*   parser.Parser.loadObjFile("C:\\Users\\Timo\\Desktop\\InselRichtig.obj");
 
         for(int i=0; i <= Parser.i-1 ; i++){
             Vec3 e0 = new Vec3();
@@ -174,20 +174,14 @@ public class Main {
             e2.z = ((Parser.va.get((int)(Parser.fa.get(i).z - 1)).z)+translatez)*scale;
 
 
-            Triangle triangle = new Triangle(new Vec3(0,0,0), new RgbColor((float)Math.random(),(float)Math.random(),(float)Math.random()),new Phong(0.5f,0.3f,0.4f,0.6f), e0,e1,e2);
+            Triangle triangle = new Triangle(new Vec3(0,0,0), new RgbColor((float)Math.random(),(float)Math.random(),(float)Math.random()),new Phong(0.5f,0.5f,0.3f,0.4f), e0,e1,e2);
             renderScene.addObject(triangle);
         } */
 
 
 
 
-        Sphere sphere1 = new Sphere(spherePos, sphereRadius, new RgbColor(0,0,1), new Phong(0.8f,.3f, .4f, .6f));
-       // Triangle triangle1 = new Triangle(new Vec3(0,0,0), new RgbColor(1,0,0),new Phong(0.3f,0.4f,0.6f), new Vec3(0-5,-0.353553f-5,-0.707107f-25),new Vec3(0.707107f-5,-0.353553f-5,0-25),new Vec3(-0.707107f-5,-0.353553f-5,0-25));
-       // Triangle triangle2 = new Triangle(new Vec3(0,0,0), new RgbColor(0,1,0),new Phong(0.3f,0.4f,0.6f), new Vec3(-0.707107f-5,-0.353553f-5,0-25),new Vec3(0.707107f-5,-0.353553f-5,0-25),new Vec3(0-5,-0.353553f-5,0.707107f-25));
-        //Triangle triangle3 = new Triangle(new Vec3(0,0,0), new RgbColor(0,0,1),new Phong(0.3f,0.4f,0.6f), new Vec3(0-5,-0.353553f-5,-0.707107f-25),new Vec3(-0.707107f-5,-0.353553f-5,0-25),new Vec3(0-5,-0.353553f-5,0-25));
-        //Triangle triangle4 = new Triangle(new Vec3(0,0,0), new RgbColor(1,1,0),new Phong(0.3f,0.4f,0.6f), new Vec3(-0.707107f-5,-0.353553f-5,0-25),new Vec3(0-5,-0.353553f-5,0.707107f-25),new Vec3(0-5,0.353553f-5,0-25));
-       // Triangle triangle5 = new Triangle(new Vec3(0,0,0), new RgbColor(1,0,1),new Phong(0.3f,0.4f,0.6f), new Vec3(0-5,-0.353553f-5,0.707107f-25),new Vec3(0.707107f-5,-0.353553f-5,0-25),new Vec3(0-5,0.353553f-5,0-25));
-       // Triangle triangle6 = new Triangle(new Vec3(0,0,0), new RgbColor(1,1,1),new Phong(0.3f,0.4f,0.6f), new Vec3(0.707107f-5,-0.353553f-5,0-25),new Vec3(0-5,-0.353553f-5,-0.707107f-25),new Vec3(0-5,0.353553f-5,0-25));
+        Sphere sphere1 = new Sphere(spherePos, sphereRadius, new RgbColor(0.5f,0,0), new Phong(0.3f,.3f, .3f, .3f));
 
 
         //Sphere sphere2 = new Sphere(new Vec3(5,-6,-20), 3f, new RgbColor(0,1,0), new Lambert());
@@ -267,10 +261,11 @@ public class Main {
 
     private static void setupCornellBox(Scene renderScene) {
         Plane planeBack = new Plane(new Vec3(0,0,-40), new RgbColor(1,1,1), new Lambert(0.0f), new Vec3(0,0,1));
-        Plane planeLeft = new Plane(new Vec3(-12,0,0), new RgbColor(1,0,0), new Lambert(0.0f), new Vec3(1,0,0));
-        Plane planeRight = new Plane(new Vec3(12,0,0), new RgbColor(0,0,1), new Lambert(0.0f), new Vec3(-1,0,0));
+        Plane planeLeft = new Plane(new Vec3(-12,0,0), new RgbColor(1,0,0), new Lambert(0.1f), new Vec3(1,0,0));
+        Plane planeRight = new Plane(new Vec3(12,0,0), new RgbColor(0,0,1), new Lambert(0.1f), new Vec3(-1,0,0));
         Plane planeTop = new Plane(new Vec3(0,9,0), new RgbColor(1,1, 1), new Lambert(0.0f), new Vec3(0,-1,0));
         Plane planeBottom = new Plane(new Vec3(0,-9,0), new RgbColor(1,1,1), new Lambert(0.0f), new Vec3(0,1,0));
+        Plane planeFront = new Plane(new Vec3(0,0,17), new RgbColor(1,1,1), new Lambert(0.0f), new Vec3(0,1,0));
 
 
         renderScene.addObject(planeBack);
@@ -278,6 +273,7 @@ public class Main {
         renderScene.addObject(planeRight);
         renderScene.addObject(planeTop);
         renderScene.addObject(planeBottom);
+        renderScene.addObject(planeFront);
 
     }
 

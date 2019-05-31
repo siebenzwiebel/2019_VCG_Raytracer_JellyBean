@@ -44,8 +44,9 @@ public class Raytracer {
     private Scene mScene;
     private long mtStart;
     private int currentRecursion = 0;
-    int recursiveDepthMax = 1;
+    int recursiveDepthMax = 10;
     int recursiveDepth = 0;
+    RgbColor refcolor = new RgbColor(0,0,0);
 
     public Raytracer(Scene scene, Window renderWindow){
         //Log.print(this, "Init");
@@ -127,13 +128,17 @@ public class Raytracer {
         RgbColor calcColor = new RgbColor(0, 0, 0);
         RgbColor bgColor = new RgbColor(0,0,0);
         float ref = 0;
+        int a =0;
+
+
 
 
 
             for (SceneObject object : mScene.getShapeList()) {
 
+
                 float tmin = object.isHitByRay(ray);
-                if (tmin != -1 && tmin < t) {
+                if (tmin > 0 && tmin < t) {
                     t = tmin;
                     //Log.print(" " + t);
                     hitObject = object;
@@ -178,27 +183,25 @@ public class Raytracer {
 
 
                 }
-                int a=0;
-                a++;
 
-             /*   if(recursiveDepth <= recursiveDepthMax && hitObject.getMaterial().getReflectivity() != 0){
+
+
+                if(recursiveDepth < recursiveDepthMax && hitObject.getMaterial().getReflectivity() != 0){
                     recursiveDepth++;
-                    Vec3 N = hitObject.getNormal(ray.at(t)).normalize();
-                    Vec3 I = ray.getDirection().normalize();
-                    Vec3 refVec = I.sub(N.multScalar(2).multScalar(N.scalar(I)));
+                    Vec3 N = hitObject.getNormal(ray.at(t));
+                    Vec3 I = ray.getDirection();
+                    Vec3 refVec = I.sub(N.multScalar(I.scalar(N)*2));
                     Ray refRay = new Ray(ray.at(t),refVec.normalize());
-
-                    RgbColor refColor = traceRay(refRay);
-                    refColor = refColor.multScalar(hitObject.getMaterial().getReflectivity());
-
-                    calcColor = calcColor.add(refColor);
-
-                }*/
-
+                    calcColor = traceRay(refRay);
+                    return calcColor.add( hitObject.getColor().multScalar(Globals.ambient));
+                }
+                recursiveDepth =0;
 
                 calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
 
             }
+
+
 
 
 

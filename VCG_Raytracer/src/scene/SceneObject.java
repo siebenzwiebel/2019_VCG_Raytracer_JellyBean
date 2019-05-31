@@ -50,6 +50,5 @@ public class SceneObject {
         return material;
     }
 
-
     public Vec3 getNormal(Vec3 intersection){return normal;};
 }
