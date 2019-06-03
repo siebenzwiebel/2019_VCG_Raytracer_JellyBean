@@ -17,9 +17,11 @@ public class Phong extends Material {
     protected float k_d;
     protected float k_s;
     public float reflectivity;
+    public float refractivity;
 
-    public Phong(float reflectivity,float k_a, float k_d, float k_s) {
+    public Phong(float reflectivity, float refractivity, float k_a, float k_d, float k_s) {
         this.reflectivity = reflectivity;
+        this.refractivity = refractivity;
         this.k_a = k_a;
         this.k_d = k_d;
         this.k_s = k_s;
@@ -28,12 +30,15 @@ public class Phong extends Material {
     public float getReflectivity() {
         return reflectivity;
     }
+    public float getRefractivity() {
+        return refractivity;
+    }
 
     public RgbColor calculateColor(Ray lightRay, Light light, SceneObject object, Scene scene){
 
         RgbColor phongColor = new RgbColor(0,0,0);
         Vec3 campos = scene.perspCamera.getPos();
-        //implement getnormal function for sphere
+
         Vec3 intersection = lightRay.getOrigin();
         Vec3 normalVector = object.getNormal(intersection);
         Vec3 lightVector = lightRay.getDirection().normalize();
@@ -47,8 +52,7 @@ public class Phong extends Material {
         // AMBIENT
         // I_a * k_a
 
-        k_a *= Globals.ambient;
-        RgbColor I_a = new RgbColor(.1f, .1f, .1f);
+        RgbColor I_a = object.getColor();
         RgbColor I_in = light.getColor();
 
         RgbColor lightAmbient = I_a.multScalar(k_a);
@@ -85,7 +89,7 @@ public class Phong extends Material {
 
         RgbColor lightSpecular = new RgbColor(0,0,0);
 
-        float n = 12;
+        float n = 2;
         Vec3 N = normalVector;
         Vec3 L = lightVector;
         Vec3 V = ((campos).sub(lightRay.getOrigin())).normalize();
@@ -96,14 +100,14 @@ public class Phong extends Material {
         float R_V = R.scalar(V);
 
         if (R_V < 1.0 && R_V > 0.0){
-            lightSpecular = I_in.multScalar((k_s * ((n+2)/(2* (float) Math.PI)) * (float) Math.pow(R_V,n)));
+            lightSpecular = I_in.multScalar((k_s /** ((n+2)/(2* (float) Math.PI))*/ * (float) Math.pow(R_V,n)));
         }
 
 
 
         //Log.print("lambertColor: " + lambertColor);
         //Log.print("A: " + lightAmbient.toString() + " D: " + lightDiffuse.toString() + " S: " + lightSpecular.toString());
-        phongColor = (((phongColor.add(lightAmbient)).add(lightDiffuse)).add(lightSpecular)).multScalar(light.getIntensity());
+        phongColor = (((phongColor.add(lightAmbient)).add(lightDiffuse)).add(lightSpecular));//.multScalar(light.getIntensity());
 
         return phongColor;
     }

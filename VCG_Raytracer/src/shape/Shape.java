@@ -14,5 +14,7 @@ public class Shape extends SceneObject {
         return true;
     }
 
+    public Material getMaterial(){return material;}
+
 
 }

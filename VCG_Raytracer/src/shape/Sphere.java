@@ -36,7 +36,7 @@ public class Sphere extends Shape {
         Vec3 position = new Vec3(newRay4DOrigin.x, newRay4DOrigin.y, newRay4DOrigin.z);
 
         float a = direction.scalar(direction);
-        float b = 2*oc.scalar(direction);
+        float b = 2 * oc.scalar(direction);
         float c = oc.scalar(oc) - radius*radius;
 
         float discriminant = b*b - 4*a*c;
@@ -44,8 +44,21 @@ public class Sphere extends Shape {
         if(discriminant<0){
             return -1f;
         }else {
-            return (-b - (float)Math.sqrt(discriminant)) / (2 * a);
+            float root1 = (float) ((-b - Math.sqrt(discriminant)) * 0.5f);
+            float root2 = (float) ((-b + Math.sqrt(discriminant)) * 0.5f);
+
+            if (root1 < 0 && root2 < 0)return -1f;
+            if (root1 < 0) return  root2;
+            else if (root2 < 0) return  root1;
+            else if (root2 == root1) return root1;
+
+            else {
+                if (root1 < root2) return  root1;
+                else return  root2;
+            }
+            //  return (float) ((-b - Math.sqrt(discriminant)) / 2*a);
         }
+
     }
 
     public Vec3 getPos(){
@@ -71,6 +84,12 @@ public class Sphere extends Shape {
 
     }
 
-
-
+    @Override
+    public String toString() {
+        return "Sphere{" +
+                "mPosition=" + mPosition +
+                ", color=" + color +
+                ", reflectivity=" + material.getReflectivity() +
+                '}';
+    }
 }

@@ -69,7 +69,7 @@ public class Window {
         graphic.setColor(Color.black);
         graphic.fill3DRect(0,mHeight - 30,mWidth,mHeight,true);
         graphic.setColor(Color.green);
-        graphic.drawString("Elapsed rendering time: " + text + " sec, Recursions: " + recursions + ", Frame: " + frame + "/" + Globals.frames, 10, mHeight - 10);
+        graphic.drawString("Elapsed rendering time: " + text + " sec, Recursions: " + (recursions+1) + ", Frame: " + frame + "/" + Globals.frames, 10, mHeight - 10);
 
         mFrame.repaint();
     }
@@ -87,11 +87,17 @@ public class Window {
      **/
     public void exportRenderingToFile(BufferedImage renderImage, String text, int recursions, int frame){
         this.setOutputLabel(renderImage, text, recursions, frame);
-        //long timeInMillis = System.currentTimeMillis();
-        //SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
-        //Date resultdate = new Date(timeInMillis);
 
-        DataExporter.exportImageToPng(renderImage, mOutputTitle + "_" + frame + ".png");
+        long timeInMillis = System.currentTimeMillis();
+        Date resultDate = new Date(timeInMillis);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
+
+
+        if (Globals.animation == true) {
+            DataExporter.exportImageToPng(renderImage, mOutputTitle + "_" + frame + ".png");
+        } else {
+            DataExporter.exportImageToPng(renderImage, mOutputTitle + "_" + sdf.format(resultDate) + ".png");
+        }
     }
 
 

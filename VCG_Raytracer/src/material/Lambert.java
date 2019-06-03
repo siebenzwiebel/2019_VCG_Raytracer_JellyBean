@@ -10,22 +10,33 @@ import utils.algebra.Vec3;
 import utils.io.Log;
 
 public class Lambert extends Material {
+
     public float reflectivity;
+    public float refractivity;
+    public float k_a;
+    public float k_d;
 
 
 
-    public Lambert(float reflectivity) {
+    public Lambert(float reflectivity, float refractivity, float k_a, float k_d) {
+        this.k_a = k_a;
+        this.k_d = k_d;
         this.reflectivity = reflectivity;
+        this.refractivity = refractivity;
     }
 
     public float getReflectivity() {
         return reflectivity;
+    }
+    public float getRefractivity() {
+        return refractivity;
     }
 
     public RgbColor calculateColor(Ray lightRay, Light light, SceneObject object, Scene scene){
 
         RgbColor lambertColor = new RgbColor(0,0,0);
         Vec3 campos = scene.perspCamera.getPos();
+
         //implement getnormal function for sphere
         Vec3 intersection = lightRay.getOrigin();
         Vec3 normalVector = object.getNormal(intersection);
@@ -34,8 +45,7 @@ public class Lambert extends Material {
         // AMBIENT
         // I_a * k_a
 
-        float k_a = Globals.ambient;
-        RgbColor I_a = new RgbColor(.1f, .1f, .1f);
+        RgbColor I_a = object.getColor();
         RgbColor I_in = light.getColor();
 
         RgbColor lightAmbient = I_a.multScalar(k_a);
@@ -44,7 +54,7 @@ public class Lambert extends Material {
         // L_d = k_d * I_in( N*L)
 
         float L_N;
-        float k_d = 1 - Globals.ambient;
+
         // intensity of reflected light is proportional to cosine of angle between surface and incoming light direction
         // heißt: I_l ist proportional zu cos(theta) (=L*N)
 

@@ -43,9 +43,8 @@ public class Raytracer {
     private Window mRenderWindow;
     private Scene mScene;
     private long mtStart;
-    private int currentRecursion = 0;
-    int recursiveDepthMax = 10;
-    int recursiveDepth = 0;
+    private int recursions = 0;
+
     RgbColor refcolor = new RgbColor(0,0,0);
 
     public Raytracer(Scene scene, Window renderWindow){
@@ -72,16 +71,16 @@ public class Raytracer {
 
         for(float y = 0f; y < mBufferedImage.getHeight(); y++) {
             for (float x = 0f; x < mBufferedImage.getWidth(); x++) {
-                RgbColor color = new RgbColor(0, 0, 0);
-                /*
-                RgbColor stl = traceRay(createPrimaryRay(new Vec2(x - .25f, y + .25f)));
-                RgbColor str = traceRay(createPrimaryRay(new Vec2(x + .25f, y + .25f)));
-                RgbColor sbl = traceRay(createPrimaryRay(new Vec2(x - .25f, y - .25f)));
-                RgbColor sbr = traceRay(createPrimaryRay(new Vec2(x + .25f, y - .25f)));
-                */
-                color = traceRay(createPrimaryRay(new Vec2(x, y)));
+                RgbColor color;
 
-                //color = (color.add(stl).add(str).add(sbl).add(sbr).add(sm)).multScalar(1f);
+                //RgbColor stl = traceRay(createPrimaryRay(new Vec2(x - .25f, y + .25f)), recursions).multScalar(.125f);
+                //RgbColor str = traceRay(createPrimaryRay(new Vec2(x + .25f, y + .25f)), recursions).multScalar(.125f);
+                //RgbColor sbl = traceRay(createPrimaryRay(new Vec2(x - .25f, y - .25f)), recursions).multScalar(.125f);
+                //RgbColor sbr = traceRay(createPrimaryRay(new Vec2(x + .25f, y - .25f)), recursions).multScalar(.125f);
+                //RgbColor sm = traceRay(createPrimaryRay(new Vec2(x, y)), recursions).multScalar(.5f);
+                //color = (color.add(stl).add(str).add(sbl).add(sbr).add(sm));
+
+                color = traceRay(createPrimaryRay(new Vec2(x, y)), recursions);
 
                 mRenderWindow.setPixel(mBufferedImage, color, new Vec2(x, y));
             }
@@ -118,8 +117,7 @@ public class Raytracer {
 
     }
 
-    private RgbColor traceRay(Ray ray) {
-        currentRecursion++;
+    private RgbColor traceRay(Ray ray, int recursions) {
         // CHECK FOR INTERSECTION
         float t = POSITIVE_INFINITY; // distance
         SceneObject hitObject = null;
@@ -138,7 +136,7 @@ public class Raytracer {
 
 
                 float tmin = object.isHitByRay(ray);
-                if (tmin > 0 && tmin < t) {
+                if (tmin > 0f && tmin < t) {
                     t = tmin;
                     //Log.print(" " + t);
                     hitObject = object;
@@ -150,7 +148,8 @@ public class Raytracer {
             if (hit) {
 
                 for (Light light : mScene.getLightList()) {
-                    Ray secondaryRay = createSecondaryRay(ray.at(t), light.getPosition());
+                    //Ray secondaryRay = createSecondaryRay(ray.at(t), light.getPosition());
+                    Ray secondaryRay = createSecondaryRay(ray.at(t).add(light.getPosition().multScalar(0.001f)), light.getPosition());
                     Material mat = hitObject.getMaterial();
                     boolean inShadow = false;
 
@@ -184,25 +183,63 @@ public class Raytracer {
 
                 }
 
+                if (recursions < Globals.recursionDepth) {
+
+                    recursions++;
+
+                    if (hitObject.getMaterial().getReflectivity() != 0) {
+
+                        Vec3 N = hitObject.getNormal(ray.at(t));
+                        Vec3 I = ray.getDirection();
 
 
-                if(recursiveDepth < recursiveDepthMax && hitObject.getMaterial().getReflectivity() != 0){
-                    recursiveDepth++;
-                    Vec3 N = hitObject.getNormal(ray.at(t));
-                    Vec3 I = ray.getDirection();
-                    Vec3 refVec = I.sub(N.multScalar(I.scalar(N)*2));
-                    Ray refRay = new Ray(ray.at(t),refVec.normalize());
-                    calcColor = traceRay(refRay);
-                    return calcColor.add( hitObject.getColor().multScalar(Globals.ambient));
+                        //Vec3 refVec = I.sub(N.multScalar(I.scalar(N)*2));
+                        //Ray refRay = new Ray(ray.at(t),refVec.normalize());
+
+                        Vec3 refVec = I.sub(N.multScalar(2f * (I.scalar(N))));
+                        Ray refRay = new Ray(ray.at(t).add(hitObject.getNormal(ray.at(t)).multScalar(Globals.epsilon)), refVec);
+
+                        calcColor = calcColor.add(traceRay(refRay, recursions).multScalar(hitObject.getMaterial().getReflectivity()));
+                        //return calcColor.add( hitObject.getColor().multScalar(Globals.ambient));
+                    }
+                    //recursiveDepth =0;
+                    //calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
+
+                    if (hitObject.getMaterial().getRefractivity() != 0) {
+
+                        Vec3 normal = hitObject.getNormal(ray.at(t)).normalize();
+                        Vec3 I = ray.getDirection().normalize();
+                        double NdotI = normal.scalar(I);
+                        double etai = 1;
+                        double etat = Globals.nGlass;
+
+                        if (NdotI < 0) {
+                            NdotI = -1 * NdotI;
+                        } else {
+                            normal = normal.multScalar(-1);
+                            double temp = etai;
+                            etai = etat;
+                            etat = temp;
+                        }
+
+                        double eta = etai / etat;
+                        double k = 1 - (eta * eta) * (1 - NdotI * NdotI);
+                        if (k >= 0f) {
+                            //return calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
+
+                            Vec3 add = normal.multScalar((float) (eta * NdotI - Math.sqrt(k)));
+                            Vec3 refrDirection = I.add(normal.multScalar((float) NdotI)).multScalar((float) eta).sub(normal.multScalar((float) Math.sqrt(k)));
+
+                            Ray refrRay = new Ray(ray.at(t).add(refrDirection.normalize().multScalar(0.01f)), refrDirection.normalize());
+                            calcColor = calcColor.add(traceRay(refrRay, recursions).multScalar(hitObject.getMaterial().getRefractivity()));
+                        }
+                        //recursiveDepth =0;
+                        //return calcColor.multScalar(hitObject.getMaterial().getRefractivity());
+                    }
                 }
-                recursiveDepth =0;
 
-                calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
 
             }
-
-
-
 
 
         return calcColor;
