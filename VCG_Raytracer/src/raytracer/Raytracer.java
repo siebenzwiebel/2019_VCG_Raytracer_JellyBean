@@ -57,7 +57,9 @@ public class Raytracer {
     }
 
     public void exportRendering(BufferedImage renderImage, int recursion, int frame){
+        Log.print(String.valueOf(stopTime(mtStart)));
         mRenderWindow.exportRenderingToFile(renderImage, String.valueOf(stopTime(mtStart)), recursion-1, frame);
+        //Log.print("elapsed time: " + String.valueOf(stopTime(mtStart)));
     }
 
     private static double stopTime(long tStart){
@@ -66,10 +68,12 @@ public class Raytracer {
         return tDelta / 1000.0;
     }
 
-    public void renderScene(int frame){
+    public void renderScene(int frame, int yStart, int yEnd){
         //Log.print(this, "Prepare rendering at " + String.valueOf(stopTime(mtStart)));
 
-        for(float y = 0f; y < mBufferedImage.getHeight(); y++) {
+
+
+        for(float y = yStart; y < yEnd; y++) {
             for (float x = 0f; x < mBufferedImage.getWidth(); x++) {
                 RgbColor color;
 
@@ -204,6 +208,7 @@ public class Raytracer {
                     }
                     //recursiveDepth =0;
                     //calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
+                    /* TODO: ADD FRESNEL, CURRENTLY k_r AND k_t ARE DEFINED WHEN CREATING MATERIALS (SHOULD BE k_r * refl_color + (1-k_r) * refr_color*/
 
                     if (hitObject.getMaterial().getRefractivity() != 0) {
 

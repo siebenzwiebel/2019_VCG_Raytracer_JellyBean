@@ -171,7 +171,7 @@ public class Main {
         /** ****************** CUSTOM OBJECTS! ******************* */
         /** * RENDER THEM ONLY, WHEN THERE ARE NO RANDOM LIGHTS ** */
         /** ****************************************************** */
-        if (Globals.randomSpheres == 0){
+        if (Globals.randomSpheres == 0 && Globals.loadObj == false){
             renderScene.addObject(new Sphere(new Vec3(-2, -6, -33), 3f, new RgbColor(1, 0, 0), new Phong(1f, 0f, .3f, .2f, .2f)));
             renderScene.addObject(new Sphere(new Vec3(3, -5, -20), 4f, new RgbColor(0, 0, 1), new Phong(0f, 1f, .3f, .2f, .2f)));
         }
@@ -186,7 +186,7 @@ public class Main {
 
         if (Globals.loadObj == true && Globals.randomSpheres == 0) {
 
-            parser.Parser.loadObjFile("teapot_lowpoly.obj");
+            parser.Parser.loadObjFile("bunny.obj");
 
             for (int i = 0; i <= Parser.i - 1; i++) {
 
@@ -201,7 +201,7 @@ public class Main {
                 int translatez = -5;
 
                 // scale model
-                float scale = .2f;
+                float scale = 1f;
 
 
                 e0.x = ((Parser.va.get((int) (Parser.fa.get(i).x - 1)).x) + translatex) * scale;
@@ -216,7 +216,7 @@ public class Main {
                 // TODO: Rotation of Model
 
 
-                Triangle triangle = new Triangle(new Vec3(0, 0, 0), new RgbColor(.7f, .7f, .7f), new Lambert(0f, 0f, 0.5f, 0.3f), e0, e1, e2);
+                Triangle triangle = new Triangle(new Vec3(0, 0, 0), new RgbColor(.8f, .0f, .5f), new Phong(0f, 0f, 0.5f, 0.3f, 0.5f), e0, e1, e2);
                 renderScene.addObject(triangle);
             }
         }
@@ -286,8 +286,8 @@ public class Main {
             float r = rand(0,1);
             float g = rand(0,1);
             float b = rand(0,1);
-            float reflectivity = rand(0,1);
-            float refractivity = rand(0,1);
+            float reflectivity = 0; //rand(0,1);
+            float refractivity = 0; //rand(0,1);
             float k_a = rand(0,1)*.5f;
             float k_d = rand(0,1);
             float k_s = rand(0,1);
@@ -313,12 +313,12 @@ public class Main {
     }
 
     private static void setupCornellBox(Scene renderScene) {
-        Plane planeBack = new Plane(new Vec3(0,0,-40), new RgbColor(1,1,1), new Lambert(0f, 0f, .5f, .3f), new Vec3(0,0,1));
-        Plane planeLeft = new Plane(new Vec3(-12,0,0), new RgbColor(1,0,0), new Lambert(0f, 0f, .5f, .3f), new Vec3(1,0,0));
-        Plane planeRight = new Plane(new Vec3(12,0,0), new RgbColor(0,0,1), new Lambert(0f, 0f, .5f, .3f), new Vec3(-1,0,0));
-        Plane planeTop = new Plane(new Vec3(0,9,0), new RgbColor(1,1, 1), new Lambert(0f, 0f, .5f, .3f), new Vec3(0,-1,0));
-        Plane planeBottom = new Plane(new Vec3(0,-9,0), new RgbColor(1,1,1), new Lambert(0f, 0f, .5f, .3f), new Vec3(0,1,0));
-        Plane planeFront = new Plane(new Vec3(0,0,18), new RgbColor(0,0,0), new Lambert(0f, 0f, .5f, .3f), new Vec3(0,1,0));
+        Plane planeBack = new Plane(new Vec3(0,0,-40), new RgbColor(1,1,1), new Lambert(.2f, 0f, .5f, .3f), new Vec3(0,0,1));
+        Plane planeLeft = new Plane(new Vec3(-12,0,0), new RgbColor(1,0,0), new Lambert(.2f, 0f, .5f, .3f), new Vec3(1,0,0));
+        Plane planeRight = new Plane(new Vec3(12,0,0), new RgbColor(0,0,1), new Lambert(.2f, 0f, .5f, .3f), new Vec3(-1,0,0));
+        Plane planeTop = new Plane(new Vec3(0,9,0), new RgbColor(1,1, 1), new Lambert(.2f, 0f, .5f, .3f), new Vec3(0,-1,0));
+        Plane planeBottom = new Plane(new Vec3(0,-9,0), new RgbColor(1,1,1), new Lambert(.2f, 0f, .5f, .3f), new Vec3(0,1,0));
+        Plane planeFront = new Plane(new Vec3(0,0,18), new RgbColor(0,0,0), new Lambert(.2f, 0f, .5f, .3f), new Vec3(0,1,0));
 
         renderScene.addObject(planeBack);
         renderScene.addObject(planeLeft);
@@ -336,6 +336,31 @@ public class Main {
                 renderScene,
                 renderWindow);
 
-        raytracer.renderScene(frame);
+        int width = renderWindow.getBufferedImage().getWidth();
+        int height = renderWindow.getBufferedImage().getHeight();
+        for(int i = 1; i < Globals.threads; i++){
+            int yStart = (i-1) * (height / Globals.threads);
+            int yEnd = i * (height / Globals.threads);
+            new Thread(() -> {
+                raytracer.renderScene(frame, yStart, yEnd);
+            }).start();
+        }
+        raytracer.renderScene(frame, (Globals.threads-1)*(height/Globals.threads), Globals.threads * (height/Globals.threads));
+
+        /*
+        new Thread(() -> {
+            raytracer.renderScene(frame, 0, 150);
+        }).start();
+        new Thread(() -> {
+            raytracer.renderScene(frame, 150, 300);
+        }).start();
+        new Thread(() -> {
+            raytracer.renderScene(frame, 300, 450);
+        }).start();
+
+        raytracer.renderScene(frame, 450, 600);
+        */
+
+
     }
 }

@@ -8,6 +8,7 @@ public class Globals {
 
     public static int recursionDepth = 10;
     public static final int sampling = 4;
+    public static final int threads = 2;
 
     public static float ambient = 0f;
     public static float epsilon = 0.001f;
@@ -25,6 +26,7 @@ public class Globals {
     public static int randomLights = 0;
     public static boolean loadObj = false;
     public static boolean animation = false;
+    public static double stopTime = 0;
 
     public static float zeta = .05f;
     public static final int duration = 20;
