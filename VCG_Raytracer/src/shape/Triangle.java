@@ -20,13 +20,14 @@ public class Triangle extends Shape{
         this.e0 = e0;
         this.e1 = e1;
         this.e2 = e2;
+        this.ab = e1.sub(e0);
+        this.ac = e2.sub(e0);
+        this.normal = ab.cross(ac);
+
     }
 
     public float isHitByRay(Ray ray){
 
-        ab = e1.sub(e0);
-        ac = e2.sub(e0);
-        normal = ab.cross(ac);
         Vec3 pvec = ray.getDirection().cross(ac);
         float det = ab.scalar((pvec));
 
