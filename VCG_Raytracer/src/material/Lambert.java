@@ -15,14 +15,16 @@ public class Lambert extends Material {
     public float refractivity;
     public float k_a;
     public float k_d;
+    public RgbColor matColor;
 
 
 
-    public Lambert(float reflectivity, float refractivity, float k_a, float k_d) {
+    public Lambert(RgbColor matColor, float reflectivity, float refractivity, float k_a, float k_d) {
         this.k_a = k_a;
         this.k_d = k_d;
         this.reflectivity = reflectivity;
         this.refractivity = refractivity;
+        this.matColor = matColor;
     }
 
     public float getReflectivity() {
@@ -45,7 +47,7 @@ public class Lambert extends Material {
         // AMBIENT
         // I_a * k_a
 
-        RgbColor I_a = object.getColor();
+        RgbColor I_a = matColor;
         RgbColor I_in = light.getColor();
 
         RgbColor lightAmbient = I_a.multScalar(k_a);

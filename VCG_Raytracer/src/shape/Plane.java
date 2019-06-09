@@ -10,8 +10,8 @@ public class Plane extends Shape {
 
     public Vec3 direction;
 
-    public Plane(Vec3 pos, RgbColor color, Material material, Vec3 direction) {
-        super(pos, color, material);
+    public Plane(Vec3 pos, Material material, Vec3 direction) {
+        super(pos, material);
         this.direction = direction;
     }
 
@@ -46,7 +46,6 @@ public class Plane extends Shape {
         return "Plane{" +
                 "direction=" + direction +
                 ", mPosition=" + mPosition +
-                ", color=" + color +
                 ", material=" + material +
                 '}';
     }

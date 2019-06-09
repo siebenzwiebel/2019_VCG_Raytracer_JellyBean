@@ -48,19 +48,6 @@ import java.io.File;
 public class Main {
 
     /** ****************************************************** */
-    /** ****************** ANIMATION STUFF! ****************** */
-    /** ****************** TODO: AUSLAGERN! ****************** */
-
-    static final float bouncyness = .8f;
-    static final float friction = 0.8f;
-    static final float absorbtion = 0.85f;
-    static Vec3 velocity = new Vec3(.9f,0,.9f);
-    static Vec3 acceleration = new Vec3(0, -.0981f, 0);
-    static Vec3 spherePos = new Vec3(4, -3f, -20);
-    static float sphereRadius = 4.5f;
-
-
-    /** ****************************************************** */
     /** ****************************************************** */
 
 
@@ -69,26 +56,9 @@ public class Main {
         //Log.print("Init Main");
         Window renderWindow = new Window(Globals.imageWidth, Globals.imageHeight, Globals.outputTitle);
 
-        // TODO: Tricks: Exceptions
-        // This helps only temporary! You should fix the source of the error rather than catching it!
-        try{
-            float stupid = 1/0;
-        }
-        catch(ArithmeticException ex){
-            Log.error("This is a caught exception, because someone wanted to divide by 0: " + ex);
-        }
-
-        try{
-            Window stupid = null;
-            stupid.getClass();
-        }
-        catch(NullPointerException ex){
-            Log.error("This is a caught exception, because someone wanted use an not initialized class: " + ex);
-        }
-
         // loop for animation rendering, for nice results set Globals.frames to 30 * animationDuration
         float frames = 0;
-        if (Globals.animation == true) {
+        if (Globals.animation) {
             frames = Globals.frames;
         }
         for (int i = 0; i <= frames; i++){
@@ -124,15 +94,24 @@ public class Main {
         /** ****************************************************** */
 
         if (Globals.randomLights == 0) {
-            PointLight red = new PointLight(new Vec3(-5, 8.9f, -10), new RgbColor(1, 0, 0), .5f);
-            PointLight blue = new PointLight(new Vec3(0, 8.9f, -17), new RgbColor(0, 0, 1), .5f);
-            PointLight green = new PointLight(new Vec3(5, 8.9f, -10), new RgbColor(0, 1, 0), .5f);
-            PointLight white = new PointLight(new Vec3(0, 8.9f, -15), new RgbColor(1f, 1f, 1f), 1f);
+            if (Globals.aufgabe == 3) {
+                PointLight red = new PointLight(new Vec3(-2f, 3f, 2f), new RgbColor(1, 0, 0), 1f);
+                PointLight blue = new PointLight(new Vec3(0f, 3f, .25f), new RgbColor(0, 0, 1), 1f);
+                PointLight rg = new PointLight(new Vec3(2.75f, 2.75f, 0f), new RgbColor(1, 1, 0), 1f);
+                PointLight gb = new PointLight(new Vec3(0f, -6f, 0f), new RgbColor(0, 0, 1), 1f);
 
-            //renderScene.addLight(red);
-            //renderScene.addLight(blue);
-            //renderScene.addLight(green);
-            renderScene.addLight(white);
+                renderScene.addLight(red);
+                renderScene.addLight(blue);
+                renderScene.addLight(rg);
+                renderScene.addLight(gb);
+
+            }
+            if (Globals.aufgabe == 4) {
+                PointLight white = new PointLight(new Vec3(0f, 1.5f, 0f), new RgbColor(1f, 1f, 1f), 1f);
+                renderScene.addLight(white);
+            }
+
+
         }
 
         /** ****************************************************** */
@@ -146,7 +125,7 @@ public class Main {
 
         // add random lights (set Globals.randomLights to amount of desired lights
         for (int i = 0; i < Globals.randomLights; i++){
-            renderScene.addLight(new PointLight(new Vec3(rand(-1, 1),8.99999f, rand(-19, -21)), new RgbColor(rand(0,1),rand(0,1),rand(0,1)), rand(0,2)/Globals.randomLights));
+            renderScene.addLight(new PointLight(new Vec3(Globals.rand(-1, 1),8f, Globals.rand(-19, -21)), new RgbColor(Globals.rand(0,1),Globals.rand(0,1),Globals.rand(0,1)), Globals.rand(0,2)/Globals.randomLights));
         }
 
         /** ****************************************************** */
@@ -156,8 +135,13 @@ public class Main {
     }
 
     private static void setupCameras(Scene renderScene) {
-
-        Vec3 camPos = new Vec3(0, 0, 17);
+        Vec3 camPos;
+        if (Globals.aufgabe == 3) {
+            camPos = new Vec3(0, 0, 10);
+        }
+        else {
+            camPos = new Vec3(0, 0, 17);
+        }
         Vec3 viewPoint = new Vec3(0,0,0);
         Vec3 upVec = new Vec3(0,1,0);
         float viewAngle = 35 * Globals.RAD;
@@ -172,12 +156,22 @@ public class Main {
         /** ****************** CUSTOM OBJECTS! ******************* */
         /** * RENDER THEM ONLY, WHEN THERE ARE NO RANDOM LIGHTS ** */
         /** ****************************************************** */
-        if (Globals.randomSpheres == 0 && Globals.loadObj == false){
-            renderScene.addObject(new Sphere(new Vec3(-2, -6, -33), 3f, new RgbColor(1, 0, 0), new Phong(1f, 0f, .3f, .2f, .2f)));
-            renderScene.addObject(new Sphere(new Vec3(3, -5, -20), 4f, new RgbColor(0, 0, 1), new Phong(0f, 1f, .3f, .2f, .2f)));
 
-            renderScene.addObject(new Square(new Vec3(-1, 8.98f, -17), new Vec3(-1, 8.98f,-13), new Vec3(1,8.98f,-17), new RgbColor(1,1,1), new Lambert(0, 0, 1, 0), new Vec3(-1, -1, -16)));
+        // AUFGABE 3 - LIGHTS ARE GENERATED RANDOMLY (LINE 137ff)
+        if (Globals.randomSpheres == 0 && !Globals.loadObj && Globals.aufgabe == 3){
+            renderScene.addObject(new Sphere(new Vec3(-1.1f, 0, -1), .75f,  new Lambert(new RgbColor(.6f, .6f, .6f), 0, 0, .1f, .9f)));
+            renderScene.addObject(new Sphere(new Vec3(1, -.25f, 0), 1.25f,  new Lambert(new RgbColor(.6f, .6f, .6f),0, 0, .1f, .9f)));
         }
+
+        if (Globals.randomSpheres == 0 && !Globals.loadObj && Globals.aufgabe == 4){
+            renderScene.addObject(new Sphere(new Vec3(-1.1f, -2f, -2.5f), 1f, new Phong(new RgbColor(1, 0, 0),0f, 0f, .4f, .5f, .5f)));
+            renderScene.addObject(new Sphere(new Vec3(1.1f, -2f, 1f), 1f, new Phong(new RgbColor(0, 1, 0),0f, 0f, .4f, .5f, .3f)));
+
+            // FAKE LIGHT SOURCE, REAL LIGHT IS ACTUALLY PLACED WAY BELOW, TO MINIMIZE SHADOW FROM SQUARE ON TOP PLANE
+            renderScene.addObject(new Square(new Vec3(-.5f, 2.99f, -.5f), new Vec3(-.5f, 2.99f,.5f), new Vec3(.5f,2.99f,-.5f), new Lambert(new RgbColor(1,1,1),0, 0, 1, 0), new Vec3(-1, -1, -16)));
+        }
+
+
         /** ****************************************************** */
         /** ****************************************************** */
 
@@ -187,16 +181,15 @@ public class Main {
         /** *** RENDER ONLY, WHEN THERE ARE NO RANDOM SPHERES **** */
         /** ****************************************************** */
 
-        if (Globals.loadObj == true && Globals.randomSpheres == 0) {
+        if (Globals.loadObj && Globals.randomSpheres == 0) {
 
-            parser.Parser.loadObjFile("bunny.obj");
+            parser.Parser.loadObjFile("teapot.obj");
 
             for (int i = 0; i <= Parser.i - 1; i++) {
 
                 Vec3 e0 = new Vec3();
                 Vec3 e1 = new Vec3();
                 Vec3 e2 = new Vec3();
-                Vec3 c = new Vec3();
 
                 // manually translate model
                 int translatex = 0;
@@ -205,7 +198,6 @@ public class Main {
 
                 // scale model
                 float scale = 1f;
-
 
                 e0.x = ((Parser.va.get((int) (Parser.fa.get(i).x - 1)).x) + translatex) * scale;
                 e0.y = ((Parser.va.get((int) (Parser.fa.get(i).x - 1)).y) + translatey) * scale;
@@ -218,8 +210,7 @@ public class Main {
                 e2.z = ((Parser.va.get((int) (Parser.fa.get(i).z - 1)).z) + translatez) * scale;
                 // TODO: Rotation of Model
 
-
-                Triangle triangle = new Triangle(new Vec3(0, 0, 0), new RgbColor(.8f, .0f, .5f), new Phong(0f, 0f, 0.5f, 0.3f, 0.5f), e0, e1, e2);
+                Triangle triangle = new Triangle(new Vec3(0, 0, 0), new Phong(new RgbColor(.8f, 0f, .5f),0f, 0f, 0.5f, 0.3f, 0.5f), e0, e1, e2);
                 renderScene.addObject(triangle);
             }
         }
@@ -231,6 +222,14 @@ public class Main {
         /** ****************************************************** */
         /** ****************** ANIMATION STUFF! ****************** */
         /** ****************** TODO: AUSLAGERN! ****************** */
+
+        float bouncyness = .8f;
+        float friction = 0.8f;
+        float absorbtion = 0.85f;
+        Vec3 velocity = new Vec3(.9f,0,.9f);
+        Vec3 acceleration = new Vec3(0, -.0981f, 0);
+        Vec3 spherePos = new Vec3(4, -3f, -20);
+        float sphereRadius = 4.5f;
 
         Vec3 boundingMin = new Vec3(-12, -9, -40);
         Vec3 boundingMax = new Vec3(12, 9, -10);
@@ -266,8 +265,8 @@ public class Main {
         }
 
         // ADD THIS SPHERE (BOUNCY BOY = SPHERE 1) FOR ANIMATION AND SET FRAMES IN GLOBALS!!!!
-        if (Globals.animation == true) {
-            renderScene.addObject(new Sphere(spherePos, sphereRadius, new RgbColor(1, 1, 1), new Phong(.6f,0f, .3f, .7f, .8f)));
+        if (Globals.animation && Globals.frames > 1) {
+            renderScene.addObject(new Sphere(spherePos, sphereRadius, new Phong(new RgbColor(1, 1, 1),.6f,0f, .3f, .7f, .8f)));
         }
 
         /** ****************************************************** */
@@ -282,18 +281,18 @@ public class Main {
         // ADD COMPLETELY RANDOM SPHERES (amount in Globals.randomSpheres)
         for (int i = 1; i <= Globals.randomSpheres; i++){
 
-            float x = rand(-10,10);
-            float y = rand(-9,9);
-            float z = rand(-40,-20);
-            float radius = rand(1,4);
-            float r = rand(0,1);
-            float g = rand(0,1);
-            float b = rand(0,1);
-            float reflectivity = 0; //rand(0,1);
-            float refractivity = 0; //rand(0,1);
-            float k_a = rand(0,1)*.5f;
-            float k_d = rand(0,1);
-            float k_s = rand(0,1);
+            float x = Globals.rand(-10,10);
+            float y = Globals.rand(-9,9);
+            float z = Globals.rand(-40,-20);
+            float radius = Globals.rand(1,4);
+            float r = Globals.rand(0,1);
+            float g = Globals.rand(0,1);
+            float b = Globals.rand(0,1);
+            float reflectivity = 0; //Globals.rand(0,1);
+            float refractivity = 0; //Globals.rand(0,1);
+            float k_a = Globals.rand(0,1)*.5f;
+            float k_d = Globals.rand(0,1);
+            float k_s = Globals.rand(0,1);
             if ((k_d + k_s) > 1){
                 while ((k_d + k_s) > 1){
                     k_d *= 0.9;
@@ -301,7 +300,7 @@ public class Main {
                 }
             }
 
-            renderScene.addObject(new Sphere(new Vec3(x,y,z), radius, new RgbColor(r,g,b), new Phong(reflectivity, refractivity, k_a, k_d, k_s)));
+            renderScene.addObject(new Sphere(new Vec3(x,y,z), radius, new Phong(new RgbColor(r,g,b), reflectivity, refractivity, k_a, k_d, k_s)));
             Log.print("i: " + i + " // pos: " + x + " " + y + " " + z +" // radius: " + radius + " // color: " + r + " " + g + " " + b + " // reflecivity: " + reflectivity + " // k_a: " + k_a + " // k_d: " + k_d + " // k_s: " + k_s);
         }
 
@@ -310,25 +309,21 @@ public class Main {
 
     }
 
-    private static float rand(int min, int max) {
-        float random = (float)min + (float)Math.random() * (max - min);
-        return random;
-    }
-
     private static void setupCornellBox(Scene renderScene) {
-        Plane planeBack = new Plane(new Vec3(0,0,-40), new RgbColor(1,1,1), new Lambert(0f, 0f, .3f, .3f), new Vec3(0,0,1));
-        Plane planeLeft = new Plane(new Vec3(-12,0,0), new RgbColor(1,0,0), new Lambert(0f, 0f, .3f, .3f), new Vec3(1,0,0));
-        Plane planeRight = new Plane(new Vec3(12,0,0), new RgbColor(0,0,1), new Lambert(0f, 0f, .3f, .3f), new Vec3(-1,0,0));
-        Plane planeTop = new Plane(new Vec3(0,9,0), new RgbColor(1,1, 1), new Lambert(0f, 0f, .3f, .3f), new Vec3(0,-1,0));
-        Plane planeBottom = new Plane(new Vec3(0,-9,0), new RgbColor(1,1,1), new Lambert(0f, 0f, .3f, .3f), new Vec3(0,1,0));
-        Plane planeFront = new Plane(new Vec3(0,0,18), new RgbColor(0,0,0), new Lambert(0f, 0f, .3f, .3f), new Vec3(0,1,0));
-
-        renderScene.addObject(planeBack);
-        renderScene.addObject(planeLeft);
-        renderScene.addObject(planeRight);
-        renderScene.addObject(planeTop);
-        renderScene.addObject(planeBottom);
-        renderScene.addObject(planeFront);
+        if (Globals.aufgabe != 3) {
+            Plane planeBack = new Plane(new Vec3(0,0,-6),  new Lambert(new RgbColor(1,1,1),0f, 0f, .3f, .3f), new Vec3(0,0,1));
+            Plane planeLeft = new Plane(new Vec3(-4,0,0),  new Lambert(new RgbColor(1,0,0),0f, 0f, .3f, .3f), new Vec3(1,0,0));
+            Plane planeRight = new Plane(new Vec3(4,0,0),  new Lambert(new RgbColor(0,0,1),0f, 0f, .3f, .3f), new Vec3(-1,0,0));
+            Plane planeTop = new Plane(new Vec3(0,3f,0), new Lambert(new RgbColor(1,1, 1), 0f, 0f, .3f, .3f), new Vec3(0,-1,0));
+            Plane planeBottom = new Plane(new Vec3(0,-3f,0), new Lambert(new RgbColor(1,1,1), 0f, 0f, .3f, .3f), new Vec3(0,1,0));
+            //Plane planeFront = new Plane(new Vec3(0,0,18), new RgbColor(0,0,0), new Lambert(0f, 0f, .3f, .5f), new Vec3(0,1,0));
+            renderScene.addObject(planeBack);
+            renderScene.addObject(planeLeft);
+            renderScene.addObject(planeRight);
+            renderScene.addObject(planeTop);
+            renderScene.addObject(planeBottom);
+            //renderScene.addObject(planeFront);
+        }
 
     }
 

@@ -75,18 +75,35 @@ public class Raytracer {
 
         for(float y = yStart; y < yEnd; y++) {
             for (float x = 0f; x < mBufferedImage.getWidth(); x++) {
-                RgbColor color;
+                //RgbColor color = new RgbColor(0,0,0);
 
-                //RgbColor stl = traceRay(createPrimaryRay(new Vec2(x - .25f, y + .25f)), recursions).multScalar(.125f);
-                //RgbColor str = traceRay(createPrimaryRay(new Vec2(x + .25f, y + .25f)), recursions).multScalar(.125f);
-                //RgbColor sbl = traceRay(createPrimaryRay(new Vec2(x - .25f, y - .25f)), recursions).multScalar(.125f);
-                //RgbColor sbr = traceRay(createPrimaryRay(new Vec2(x + .25f, y - .25f)), recursions).multScalar(.125f);
+                //RgbColor stl = traceRay(createPrimaryRay(new Vec2(x - .25f, y + .25f)), recursions).multScalar(.25f);
+                //RgbColor str = traceRay(createPrimaryRay(new Vec2(x + .25f, y + .25f)), recursions).multScalar(.25f);
+                //RgbColor sbl = traceRay(createPrimaryRay(new Vec2(x - .25f, y - .25f)), recursions).multScalar(.25f);
+                //RgbColor sbr = traceRay(createPrimaryRay(new Vec2(x + .25f, y - .25f)), recursions).multScalar(.25f);
+
+
+
+                // EASY GRID SAMPLING -- just set Globals.sampling to anythong greater than 1
+                RgbColor sampledColor = new RgbColor(0,0,0);
+
+                // TODO: SAMPLE NOT EVERY 1/x OF THE PIXEL, INSTEAD DO IT ADAPTIVE: SPLIT, IF COLORS DIFFER TOO MUCH, THEN GO DEEPER :)
+                float incr = (float) 1 / Globals.sampling;
+                for(int ySub = 0; ySub < Globals.sampling; ySub++) {
+                    for (float xSub = 0; xSub < Globals.sampling; xSub++) {
+                        // TODO: REPLACE RANDOMNESS WITH BLUE NOISE
+                        float xRand = Globals.rand(-1,1) * .1f * Globals.sampleFraction;
+                        float yRand = Globals.rand(-1,1) * .1f * Globals.sampleFraction;
+                        sampledColor = sampledColor.add(traceRay(createPrimaryRay(new Vec2((x - .5f + (xSub * incr)) + xRand, y - .5f + (ySub * incr) + yRand)), recursions).multScalar(Globals.sampleFraction));
+                    }
+                }
+
                 //RgbColor sm = traceRay(createPrimaryRay(new Vec2(x, y)), recursions).multScalar(.5f);
                 //color = (color.add(stl).add(str).add(sbl).add(sbr).add(sm));
 
-                color = traceRay(createPrimaryRay(new Vec2(x, y)), recursions);
+                //color = traceRay(createPrimaryRay(new Vec2(x, y)), recursions);
 
-                mRenderWindow.setPixel(mBufferedImage, color, new Vec2(x, y));
+                mRenderWindow.setPixel(mBufferedImage, sampledColor, new Vec2(x, y));
             }
 
         }
@@ -150,40 +167,36 @@ public class Raytracer {
             }
 
             if (hit) {
-
+                // TODO: ADD LIGHT SAMPLING
                 for (Light light : mScene.getLightList()) {
                     //Ray secondaryRay = createSecondaryRay(ray.at(t), light.getPosition());
-                    Ray secondaryRay = createSecondaryRay(ray.at(t).add(light.getPosition().multScalar(0.001f)), light.getPosition());
+                    Ray secondaryRay = createSecondaryRay(ray.at(t).add(light.getPosition().multScalar(Globals.epsilon)), light.getPosition());
                     Material mat = hitObject.getMaterial();
                     boolean inShadow = false;
-
-                    for (SceneObject shadowingObject : mScene.getShapeList()) {
-                        if (shadowingObject != hitObject) {
-                            float tmin2 = shadowingObject.isHitByRay(secondaryRay);
-                            float tLight = (light.getPosition().sub(secondaryRay.getOrigin())).length();
-                            //Log.print("tmin2: " + tmin2 + " tLight: " + tLight);
-
-
-
-                            if (tmin2 > 0 && tmin2 < tLight) {
+                    if(Globals.aufgabe != 3) {
+                        for (SceneObject shadowingObject : mScene.getShapeList()) {
+                            if (shadowingObject != hitObject) {
+                                float tmin2 = shadowingObject.isHitByRay(secondaryRay);
+                                float tLight = (light.getPosition().sub(secondaryRay.getOrigin())).length();
                                 //Log.print("tmin2: " + tmin2 + " tLight: " + tLight);
-                                //t = tmin2;
-                                //Log.print("" + hitObjectColor);
-                                //hitObject = object;
-                                shadowObject = shadowingObject;
-                                inShadow = true;
-                                break;
+
+
+                                if (tmin2 > 0 && tmin2 < tLight) {
+                                    //Log.print("tmin2: " + tmin2 + " tLight: " + tLight);
+                                    //t = tmin2;
+                                    //Log.print("" + hitObjectColor);
+                                    //hitObject = object;
+                                    shadowObject = shadowingObject;
+                                    inShadow = true;
+                                    break;
+                                }
                             }
+
                         }
-
                     }
-
                     if (!inShadow){
                         calcColor = calcColor.add(mat.calculateColor(secondaryRay, light, hitObject, mScene) );
                     }
-
-
-
 
                 }
 
@@ -235,7 +248,7 @@ public class Raytracer {
                             Vec3 add = normal.multScalar((float) (eta * NdotI - Math.sqrt(k)));
                             Vec3 refrDirection = I.add(normal.multScalar((float) NdotI)).multScalar((float) eta).sub(normal.multScalar((float) Math.sqrt(k)));
 
-                            Ray refrRay = new Ray(ray.at(t).add(refrDirection.normalize().multScalar(0.01f)), refrDirection.normalize());
+                            Ray refrRay = new Ray(ray.at(t).add(refrDirection.normalize().multScalar(Globals.epsilon)), refrDirection.normalize());
                             calcColor = calcColor.add(traceRay(refrRay, recursions).multScalar(hitObject.getMaterial().getRefractivity()));
                         }
                         //recursiveDepth =0;

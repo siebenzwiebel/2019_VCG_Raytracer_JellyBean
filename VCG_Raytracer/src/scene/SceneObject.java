@@ -9,16 +9,12 @@ public class SceneObject {
 
     public Vec3 mPosition;
 
-
-
-    protected RgbColor color;
     protected Material material;
     protected Vec3 normal;
 
-    public SceneObject(Vec3 pos, RgbColor color, Material material){
+    public SceneObject(Vec3 pos, Material material){
 
         this.mPosition = pos;
-        this.color = color;
         this.material = material;
     }
 
@@ -40,10 +36,6 @@ public class SceneObject {
 
     public void moveTo(Vec3 transition){
         mPosition = mPosition.add( transition );
-    }
-
-    public RgbColor getColor() {
-        return color;
     }
 
     public Material getMaterial() {

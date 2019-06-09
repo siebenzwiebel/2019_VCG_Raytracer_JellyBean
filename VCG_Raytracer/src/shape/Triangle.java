@@ -15,8 +15,8 @@ public class Triangle extends Shape{
     public Vec3 normal;
     float t;
 
-    public Triangle(Vec3 pos, RgbColor color, Material material, Vec3 e0, Vec3 e1, Vec3 e2) {
-        super(pos, color, material);
+    public Triangle(Vec3 pos, Material material, Vec3 e0, Vec3 e1, Vec3 e2) {
+        super(pos, material);
         this.e0 = e0;
         this.e1 = e1;
         this.e2 = e2;

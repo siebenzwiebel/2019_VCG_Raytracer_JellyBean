@@ -12,8 +12,8 @@ public class Square extends Plane{
     private Vec3 p1, p2, p3, e1, e2;
 
 
-    public Square(Vec3 pos, Vec3 p2, Vec3 p3, RgbColor color, Material material, Vec3 direction) {
-        super(pos, color, material, direction);
+    public Square(Vec3 pos, Vec3 p2, Vec3 p3, Material material, Vec3 direction) {
+        super(pos, material, direction);
         this.p1 = pos;
         this.p2 = p2;
         this.p3 = p3;

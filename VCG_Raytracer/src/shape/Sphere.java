@@ -14,8 +14,8 @@ public class Sphere extends Shape {
     private Matrix4x4 transformationMatrix;
     private Matrix4x4 inverseTransformationMatrix;
 
-    public Sphere(Vec3 pos, float radius, RgbColor color, Material material) {
-        super(pos, color, material);
+    public Sphere(Vec3 pos, float radius, Material material) {
+        super(pos, material);
         this.radius = radius;
         this.transformationMatrix = calculateTransformationMatrix(pos, radius);
         this.inverseTransformationMatrix = transformationMatrix.invert();
@@ -88,7 +88,6 @@ public class Sphere extends Shape {
     public String toString() {
         return "Sphere{" +
                 "mPosition=" + mPosition +
-                ", color=" + color +
                 ", reflectivity=" + material.getReflectivity() +
                 '}';
     }

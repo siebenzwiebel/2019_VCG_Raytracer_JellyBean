@@ -18,13 +18,15 @@ public class Phong extends Material {
     protected float k_s;
     public float reflectivity;
     public float refractivity;
+    public RgbColor matColor;
 
-    public Phong(float reflectivity, float refractivity, float k_a, float k_d, float k_s) {
+    public Phong(RgbColor matColor, float reflectivity, float refractivity, float k_a, float k_d, float k_s) {
         this.reflectivity = reflectivity;
         this.refractivity = refractivity;
         this.k_a = k_a;
         this.k_d = k_d;
         this.k_s = k_s;
+        this.matColor = matColor;
     }
 
     public float getReflectivity() {
@@ -52,7 +54,7 @@ public class Phong extends Material {
         // AMBIENT
         // I_a * k_a
 
-        RgbColor I_a = object.getColor();
+        RgbColor I_a = matColor;
         RgbColor I_in = light.getColor();
 
         RgbColor lightAmbient = I_a.multScalar(k_a);
@@ -89,7 +91,7 @@ public class Phong extends Material {
 
         RgbColor lightSpecular = new RgbColor(0,0,0);
 
-        float n = 2;
+        float n = 30;
         Vec3 N = normalVector;
         Vec3 L = lightVector;
         Vec3 V = ((campos).sub(lightRay.getOrigin())).normalize();
@@ -112,4 +114,7 @@ public class Phong extends Material {
         return phongColor;
     }
 
+    public RgbColor getColor() {
+        return matColor;
+    }
 }
