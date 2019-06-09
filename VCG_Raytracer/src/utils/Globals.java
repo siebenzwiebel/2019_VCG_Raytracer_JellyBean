@@ -6,7 +6,7 @@ public class Globals {
     public static final String outputTitle = "team_jellybean";
     public static float RAD = (float) Math.PI / 180;
 
-    public static int recursionDepth = 10;
+    public static int recursionDepth = 4;
     public static final int sampling = 4;
     public static final int threads = 2;
 
