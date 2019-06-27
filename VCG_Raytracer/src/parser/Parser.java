@@ -1,18 +1,9 @@
 package parser;
 
-import material.Phong;
-import shape.Triangle;
-import utils.RgbColor;
 import utils.algebra.Vec3;
-import utils.algebra.Vec2;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.StringTokenizer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,13 +16,10 @@ import java.io.IOException;
 public class Parser {
 
     public static int i = 0;
-    public static List<Vec3> va = new ArrayList<Vec3>();
-    public static List<Vec3> fa = new ArrayList<Vec3>();
+    public static final List<Vec3> va = new ArrayList<Vec3>();
+    public static final List<Vec3> fa = new ArrayList<Vec3>();
 
     public static void loadObjFile(String filePath){
-        Vec3 e0;
-        Vec3 e1;
-        Vec3 e2;
 
         FileReader fr = null;
         try{

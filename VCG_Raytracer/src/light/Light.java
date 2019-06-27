@@ -5,11 +5,11 @@ import utils.algebra.Vec3;
 
 public abstract class Light {
 
-    protected Vec3 position;
-    protected RgbColor color;
-    protected float intensity; // 0-1
+    private final Vec3 position;
+    private final RgbColor color;
+    private final float intensity; // 0-1
 
-    public Light(Vec3 position, RgbColor color, float intensity) {
+    Light(Vec3 position, RgbColor color, float intensity) {
         this.position = position;
         this.color = color;
         this.intensity = intensity;

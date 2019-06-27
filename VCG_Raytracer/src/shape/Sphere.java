@@ -2,17 +2,14 @@ package shape;
 
 import material.Material;
 import raytracer.Ray;
-import utils.Globals;
-import utils.RgbColor;
 import utils.algebra.Matrix4x4;
 import utils.algebra.Vec3;
 import utils.algebra.Vec4;
-import utils.io.Log;
 
 public class Sphere extends Shape {
-    private float radius;
-    private Matrix4x4 transformationMatrix;
-    private Matrix4x4 inverseTransformationMatrix;
+    private final float radius;
+    private final Matrix4x4 transformationMatrix;
+    private final Matrix4x4 inverseTransformationMatrix;
 
     public Sphere(Vec3 pos, float radius, Material material) {
         super(pos, material);
@@ -65,7 +62,7 @@ public class Sphere extends Shape {
         return this.mPosition;
     }
 
-    public Matrix4x4 calculateTransformationMatrix(Vec3 pos, float scale){
+    private Matrix4x4 calculateTransformationMatrix(Vec3 pos, float scale){
         Matrix4x4 transMat = new Matrix4x4();
         Vec4 pos4D = new Vec4(pos.x, pos.y, pos.z, 1);
         transMat = transMat.translateXYZW(pos4D).scale(scale);

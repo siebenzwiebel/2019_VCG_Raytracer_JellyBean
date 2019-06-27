@@ -1,10 +1,8 @@
 package utils.algebra;
 
-import utils.io.Log;
-
 public class Matrix4x4 {
 
-	private Matrix mBaseMatrix;
+	private final Matrix mBaseMatrix;
 
 	/**
 	 The standard constructor will produce an identity matrix
@@ -88,21 +86,21 @@ public class Matrix4x4 {
 	/**
 	 Set 'value' in matrix at position row and column
 	 **/
-	public void setValueAt(int row, int col, double value){
+	private void setValueAt(int row, int col, double value){
 		mBaseMatrix.set( row, col, value );
 	}
 
 	/**
 	 Get 'value' in matrix from position row and column
 	 **/
-	public double getValueAt(int row, int col){
+	private double getValueAt(int row, int col){
 		return mBaseMatrix.get(row, col);
 	}
 
 	/**
 	 Get 'column' in matrix from position index
 	 **/
-	public Vec4 getColumn(int index){
+	private Vec4 getColumn(int index){
 		Vec4 outVec = new Vec4();
 
 		for(int i = 0; i < 4; i++){
@@ -114,7 +112,7 @@ public class Matrix4x4 {
 	/**
 	 Get 'column' in matrix from position index
 	 **/
-	public Vec4 getRow(int index){
+	private Vec4 getRow(int index){
 		Vec4 outVec = new Vec4();
 
 		for(int i = 0; i < 4; i++){
@@ -230,9 +228,10 @@ public class Matrix4x4 {
 	private static class Matrix implements Cloneable, java.io.Serializable {
 
 		private double[][] A;
-		private int m, n;
+		private final int m;
+		private final int n;
 
-		public Matrix (int m, int n) {
+		Matrix(int m, int n) {
 			this.m = m;
 			this.n = n;
 			A = new double[m][n];
@@ -260,7 +259,7 @@ public class Matrix4x4 {
 			this.A = A;
 		}
 
-		public Matrix (double[][] A, int m, int n) {
+		Matrix(double[][] A, int m, int n) {
 			this.A = A;
 			this.m = m;
 			this.n = n;
@@ -297,7 +296,7 @@ public class Matrix4x4 {
 			return X;
 		}
 
-		public Matrix copy () {
+		Matrix copy() {
 			Matrix X = new Matrix(m,n);
 			double[][] C = X.getArray();
 			for (int i = 0; i < m; i++) {
@@ -312,11 +311,11 @@ public class Matrix4x4 {
 			return this.copy();
 		}
 
-		public double[][] getArray () {
+		double[][] getArray() {
 			return A;
 		}
 
-		public double[][] getArrayCopy () {
+		double[][] getArrayCopy() {
 			double[][] C = new double[m][n];
 			for (int i = 0; i < m; i++) {
 				for (int j = 0; j < n; j++) {
@@ -346,19 +345,19 @@ public class Matrix4x4 {
 			return vals;
 		}
 
-		public int getRowDimension () {
+		int getRowDimension() {
 			return m;
 		}
 
-		public int getColumnDimension () {
+		int getColumnDimension() {
 			return n;
 		}
 
-		public double get (int i, int j) {
+		double get(int i, int j) {
 			return A[i][j];
 		}
 
-		public Matrix getMatrix (int i0, int i1, int j0, int j1) {
+		Matrix getMatrix(int i0, int i1, int j0, int j1) {
 			Matrix X = new Matrix(i1-i0+1,j1-j0+1);
 			double[][] B = X.getArray();
 			try {
@@ -403,7 +402,7 @@ public class Matrix4x4 {
 			return X;
 		}
 
-		public Matrix getMatrix (int[] r, int j0, int j1) {
+		Matrix getMatrix(int[] r, int j0, int j1) {
 			Matrix X = new Matrix(r.length,j1-j0+1);
 			double[][] B = X.getArray();
 			try {
@@ -418,7 +417,7 @@ public class Matrix4x4 {
 			return X;
 		}
 
-		public void set (int i, int j, double s) {
+		void set(int i, int j, double s) {
 			A[i][j] = s;
 		}
 
@@ -470,7 +469,7 @@ public class Matrix4x4 {
 			}
 		}
 
-		public Matrix transpose () {
+		Matrix transpose() {
 			Matrix X = new Matrix(n,m);
 			double[][] C = X.getArray();
 			for (int i = 0; i < m; i++) {
@@ -500,7 +499,7 @@ public class Matrix4x4 {
 			return A;
 		}
 
-		public static Matrix identity (int m, int n) {
+		static Matrix identity(int m, int n) {
 			Matrix A = new Matrix(m,n);
 			double[][] X = A.getArray();
 			for (int i = 0; i < m; i++) {
@@ -517,7 +516,7 @@ public class Matrix4x4 {
 			}
 		}
 
-		public Matrix solve (Matrix B) {
+		Matrix solve(Matrix B) {
 			return (m == n ? (new LUDecomposition(this)).solve(B) :
 					(new QRDecomposition(this)).solve(B));
 		}
@@ -526,7 +525,7 @@ public class Matrix4x4 {
 			return transpose().solve(B.transpose());
 		}
 
-		public Matrix inverse () {
+		Matrix inverse() {
 			return solve(identity(m,m));
 		}
 
@@ -539,7 +538,7 @@ public class Matrix4x4 {
 
 	private static class Maths {
 
-		public static double hypot(double a, double b) {
+		static double hypot(double a, double b) {
 			double r;
 			if (Math.abs(a) > Math.abs(b)) {
 				r = b/a;
@@ -555,11 +554,13 @@ public class Matrix4x4 {
 	}
 	public static class LUDecomposition implements java.io.Serializable {
 
-		private double[][] LU;
-		private int m, n, pivsign;
-		private int[] piv;
+		private final double[][] LU;
+		private final int m;
+		private final int n;
+		private int pivsign;
+		private final int[] piv;
 
-		public LUDecomposition (Matrix A) {
+		LUDecomposition(Matrix A) {
 
 			// Use a "left-looking", dot-product, Crout/Doolittle algorithm.
 
@@ -626,7 +627,7 @@ public class Matrix4x4 {
 			}
 		}
 
-		public boolean isNonsingular () {
+		boolean isNonsingular() {
 			for (int j = 0; j < n; j++) {
 				if (LU[j][j] == 0)
 					return false;
@@ -682,7 +683,7 @@ public class Matrix4x4 {
 			return vals;
 		}
 
-		public double det () {
+		double det() {
 			if (m != n) {
 				throw new IllegalArgumentException("Matrix must be square.");
 			}
@@ -693,7 +694,7 @@ public class Matrix4x4 {
 			return d;
 		}
 
-		public Matrix solve (Matrix B) {
+		Matrix solve(Matrix B) {
 			if (B.getRowDimension() != m) {
 				throw new IllegalArgumentException("Matrix row dimensions must agree.");
 			}
@@ -732,11 +733,12 @@ public class Matrix4x4 {
 
 	public static class QRDecomposition implements java.io.Serializable {
 
-		private double[][] QR;
-		private int m, n;
-		private double[] Rdiag;
+		private final double[][] QR;
+		private final int m;
+		private final int n;
+		private final double[] Rdiag;
 
-		public QRDecomposition (Matrix A) {
+		QRDecomposition(Matrix A) {
 			// Initialize.
 			QR = A.getArrayCopy();
 			m = A.getRowDimension();
@@ -777,7 +779,7 @@ public class Matrix4x4 {
 			}
 		}
 
-		public boolean isFullRank () {
+		boolean isFullRank() {
 			for (int j = 0; j < n; j++) {
 				if (Rdiag[j] == 0)
 					return false;
@@ -841,7 +843,7 @@ public class Matrix4x4 {
 			return X;
 		}
 
-		public Matrix solve (Matrix B) {
+		Matrix solve(Matrix B) {
 			if (B.getRowDimension() != m) {
 				throw new IllegalArgumentException("Matrix row dimensions must agree.");
 			}

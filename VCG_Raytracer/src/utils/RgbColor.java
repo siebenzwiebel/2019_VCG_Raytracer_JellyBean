@@ -4,10 +4,10 @@ import utils.algebra.Vec3;
 
 public class RgbColor {
 
-    public Vec3 colors;
-    public float red(){ return colors.x; }
-    public float green(){ return colors.y; }
-    public float blue(){ return colors.z; }
+    private final Vec3 colors;
+    private float red(){ return colors.x; }
+    private float green(){ return colors.y; }
+    private float blue(){ return colors.z; }
 
     public static RgbColor DARK_CUSTOM = new RgbColor(0.02f, 0.01f, 0.01f);
     public static RgbColor RED = new RgbColor(0.5f, 0, 0);
@@ -32,7 +32,7 @@ public class RgbColor {
         this.clamp();
     }
 
-    public RgbColor(Vec3 color){
+    private RgbColor(Vec3 color){
         colors = color;
 
         this.clamp();

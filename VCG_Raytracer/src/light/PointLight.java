@@ -10,8 +10,7 @@ public class PointLight extends Light {
     }
 
     public RgbColor isHitByRay(){
-        RgbColor color = new RgbColor(1,1,1);
-        return color;
+        return new RgbColor(1,1,1);
     }
 
 }

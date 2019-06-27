@@ -9,20 +9,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Date;
 
 public class Window {
 
-    private int mWidth;
-    private int mHeight;
+    private final int mWidth;
+    private final int mHeight;
 
-    private BufferedImage mBufferedImage;
-    private BufferedImage mEdgeBufferedImage;
+    private final BufferedImage mBufferedImage;
+    private final BufferedImage mEdgeBufferedImage;
 
     private JFrame mFrame;
-    private String mOutputTitle;
+    private final String mOutputTitle;
 
     /**
      Create render window with the given dimensions
@@ -93,7 +91,7 @@ public class Window {
         SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
 
 
-        if (Globals.animation == true) {
+        if (Globals.animation) {
             DataExporter.exportImageToPng(renderImage, mOutputTitle + "_" + frame + ".png");
         } else {
             DataExporter.exportImageToPng(renderImage, mOutputTitle + "_" + sdf.format(resultDate) + ".png");

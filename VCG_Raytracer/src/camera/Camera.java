@@ -1,34 +1,29 @@
 package camera;
 
 import raytracer.Ray;
-import scene.SceneObject;
-import utils.algebra.Vec2;
 import utils.algebra.Vec3;
-import utils.io.Log;
 
 public abstract class Camera {
 
 
 
-    public final Vec3 e;
-    protected Vec3 g;
-    protected Vec3 gCalc;
-    protected final Vec3 t;
-    protected final Vec3 u;
-    protected final Vec3 v;
-    protected final Vec3 w;
-    protected final int width;
-    protected final int height;
+    final Vec3 e;
+    Vec3 g;
+    private final Vec3 t;
+    final Vec3 u;
+    final Vec3 v;
+    final Vec3 w;
+    final int width;
+    final int height;
 
 
-    public Camera(Vec3 e, Vec3 g, Vec3 t, int width, int height) {
+    Camera(Vec3 e, Vec3 g, Vec3 t, int width, int height) {
         this.e = e;
         this.g = g;
-        this.gCalc = calcg(e, g);
         this.t = t;
         this.width = width;
         this.height = height;
-
+        Vec3 gCalc = calcg(e, g);
 
         //          g
         //  w = - -----
@@ -52,7 +47,7 @@ public abstract class Camera {
         this.v = u.cross(w);
     }
 
-    public abstract Ray rayFor(int x, int y);
+    // --Commented out by Inspection (2019-06-27 11:55):public abstract Ray rayFor(int x, int y);
 
     @Override
     public String toString() {
@@ -66,7 +61,7 @@ public abstract class Camera {
                 '}';
     }
 
-    public Vec3 calcg(Vec3 e, Vec3 g){
+    Vec3 calcg(Vec3 e, Vec3 g){
         //Log.print("g: " + g.toString());
         //Log.print("e: " + e.toString());
         //Log.print("g-e: " + (g.sub(e)).toString());

@@ -5,7 +5,7 @@ import shape.Shape;
 import utils.RgbColor;
 import utils.algebra.Vec3;
 
-public class Intersection {
+class Intersection {
 
     private Shape object;
     private Ray inRay;
@@ -19,11 +19,10 @@ public class Intersection {
 
 
     public RgbColor isHit(SceneObject object, Ray ray){
-        RgbColor color = new RgbColor(1,1,1);
+        return new RgbColor(1,1,1);
         // what kind of object?
         // get by subclass wäre nice, dann entsprechende methode, aber wäre case oder if abfrage, was wohl nicht so geil ist. how to do this nicely?
         // return object hit point
-        return color;
     }
 
     public Vec3 getHitPoint(){

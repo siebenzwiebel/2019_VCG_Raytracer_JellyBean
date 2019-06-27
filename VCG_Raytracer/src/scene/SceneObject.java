@@ -2,17 +2,16 @@ package scene;
 
 import material.Material;
 import raytracer.Ray;
-import utils.RgbColor;
 import utils.algebra.Vec3;
 
 public class SceneObject {
 
     public Vec3 mPosition;
 
-    protected Material material;
-    protected Vec3 normal;
+    protected final Material material;
+    private Vec3 normal;
 
-    public SceneObject(Vec3 pos, Material material){
+    protected SceneObject(Vec3 pos, Material material){
 
         this.mPosition = pos;
         this.material = material;
@@ -42,5 +41,5 @@ public class SceneObject {
         return material;
     }
 
-    public Vec3 getNormal(Vec3 intersection){return normal;};
+    public Vec3 getNormal(Vec3 intersection){return normal;}
 }

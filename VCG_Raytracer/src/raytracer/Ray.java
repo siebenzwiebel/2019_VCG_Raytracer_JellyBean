@@ -16,12 +16,7 @@ public class Ray {
     }
 
     public Vec3 at(double t) {
-        Vec3 p = this.origin.add(this.direction.multScalar((float) t));
-        return p;
-    }
-
-    public double tOf(Vec3 p) {
-        return 0.0;
+        return this.origin.add(this.direction.multScalar((float) t));
     }
 
     public Vec3 getOrigin() {

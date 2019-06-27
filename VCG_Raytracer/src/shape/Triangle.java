@@ -2,18 +2,17 @@ package shape;
 
 import material.Material;
 import raytracer.Ray;
-import utils.RgbColor;
 import utils.algebra.Vec3;
 
 public class Triangle extends Shape{
 
-    public Vec3 e0;
-    public Vec3 e1;
-    public Vec3 e2;
-    public Vec3 ab;
-    public Vec3 ac;
-    public Vec3 normal;
-    float t;
+    private final Vec3 e0;
+    private final Vec3 e1;
+    private final Vec3 e2;
+    private final Vec3 ab;
+    private final Vec3 ac;
+    private final Vec3 normal;
+    private float t;
 
     public Triangle(Vec3 pos, Material material, Vec3 e0, Vec3 e1, Vec3 e2) {
         super(pos, material);

@@ -16,34 +16,27 @@
 
 package raytracer;
 
-import camera.PerspectiveCamera;
 import light.Light;
 import material.Material;
-import material.Phong;
 import scene.Scene;
 import scene.SceneObject;
 import ui.Window;
 import utils.*;
-import utils.algebra.Matrix4x4;
 import utils.algebra.Vec2;
 import utils.algebra.Vec3;
-import utils.algebra.Vec4;
 import utils.io.Log;
 
 import java.awt.image.BufferedImage;
-import java.util.*;
 
 import static java.lang.Float.POSITIVE_INFINITY;
-import static java.util.Comparator.naturalOrder;
-import static java.util.stream.Collectors.toList;
 
 public class Raytracer {
 
-    private BufferedImage mBufferedImage;
-    private Window mRenderWindow;
-    private Scene mScene;
-    private long mtStart;
-    private int recursions = 0;
+    private final BufferedImage mBufferedImage;
+    private final Window mRenderWindow;
+    private final Scene mScene;
+    private final long mtStart;
+    private final int recursions = 0;
 
     RgbColor refcolor = new RgbColor(0,0,0);
 
@@ -56,7 +49,7 @@ public class Raytracer {
 
     }
 
-    public void exportRendering(BufferedImage renderImage, int recursion, int frame){
+    private void exportRendering(BufferedImage renderImage, int recursion, int frame){
         Log.print(String.valueOf(stopTime(mtStart)));
         mRenderWindow.exportRenderingToFile(renderImage, String.valueOf(stopTime(mtStart)), recursion-1, frame);
         //Log.print("elapsed time: " + String.valueOf(stopTime(mtStart)));
@@ -92,8 +85,8 @@ public class Raytracer {
                 for(int ySub = 0; ySub < Globals.sampling; ySub++) {
                     for (float xSub = 0; xSub < Globals.sampling; xSub++) {
                         // TODO: REPLACE RANDOMNESS WITH BLUE NOISE
-                        float xRand = Globals.rand(-1,1) * .1f * Globals.sampleFraction;
-                        float yRand = Globals.rand(-1,1) * .1f * Globals.sampleFraction;
+                        float xRand = Globals.rand(-1,1) * .01f * Globals.sampleFraction;
+                        float yRand = Globals.rand(-1,1) * .01f * Globals.sampleFraction;
                         sampledColor = sampledColor.add(traceRay(createPrimaryRay(new Vec2((x - .5f + (xSub * incr)) + xRand, y - .5f + (ySub * incr) + yRand)), recursions).multScalar(Globals.sampleFraction));
                     }
                 }
@@ -116,11 +109,7 @@ public class Raytracer {
         int y = (int) pixelPoint.y;
 
         // get correct ray from camera
-        Ray primaryRay = mScene.perspCamera.rayFor(x, y);
-        //Log.print(primaryRay.toString());
-
-
-        return primaryRay;
+        return mScene.perspCamera.rayFor(x, y);
 
     }
 
@@ -128,13 +117,7 @@ public class Raytracer {
 
         direction = (direction.sub(position)).normalize();
         position = (position.add(direction.multScalar(Globals.epsilon)));
-        Ray secondaryRay = new Ray(position, direction);
-        //Log.print(secondaryRay.toString());
-        return secondaryRay;
-
-
-        // EVTL MUSS HIER NOCH WAS PASSIEREN. KEINE AHNUNG.
-        // ERSTMAL MACHTDAS DING NUR NEN RAY AUS ORIGIN UND DIRECTION
+        return new Ray(position, direction);
 
     }
 
@@ -142,12 +125,8 @@ public class Raytracer {
         // CHECK FOR INTERSECTION
         float t = POSITIVE_INFINITY; // distance
         SceneObject hitObject = null;
-        SceneObject shadowObject = null;
         boolean hit = false;
         RgbColor calcColor = new RgbColor(0, 0, 0);
-        RgbColor bgColor = new RgbColor(0,0,0);
-        float ref = 0;
-        int a =0;
 
 
 
@@ -173,27 +152,19 @@ public class Raytracer {
                     Ray secondaryRay = createSecondaryRay(ray.at(t).add(light.getPosition().multScalar(Globals.epsilon)), light.getPosition());
                     Material mat = hitObject.getMaterial();
                     boolean inShadow = false;
-                    if(Globals.aufgabe != 3) {
                         for (SceneObject shadowingObject : mScene.getShapeList()) {
                             if (shadowingObject != hitObject) {
                                 float tmin2 = shadowingObject.isHitByRay(secondaryRay);
                                 float tLight = (light.getPosition().sub(secondaryRay.getOrigin())).length();
-                                //Log.print("tmin2: " + tmin2 + " tLight: " + tLight);
-
 
                                 if (tmin2 > 0 && tmin2 < tLight) {
-                                    //Log.print("tmin2: " + tmin2 + " tLight: " + tLight);
-                                    //t = tmin2;
-                                    //Log.print("" + hitObjectColor);
-                                    //hitObject = object;
-                                    shadowObject = shadowingObject;
+
                                     inShadow = true;
                                     break;
                                 }
                             }
 
                         }
-                    }
                     if (!inShadow){
                         calcColor = calcColor.add(mat.calculateColor(secondaryRay, light, hitObject, mScene) );
                     }
@@ -245,7 +216,6 @@ public class Raytracer {
                         if (k >= 0f) {
                             //return calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
 
-                            Vec3 add = normal.multScalar((float) (eta * NdotI - Math.sqrt(k)));
                             Vec3 refrDirection = I.add(normal.multScalar((float) NdotI)).multScalar((float) eta).sub(normal.multScalar((float) Math.sqrt(k)));
 
                             Ray refrRay = new Ray(ray.at(t).add(refrDirection.normalize().multScalar(Globals.epsilon)), refrDirection.normalize());

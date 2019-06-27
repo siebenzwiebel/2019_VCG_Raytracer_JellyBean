@@ -2,8 +2,8 @@ package utils.algebra;
 
 
 public class Vec2 {
-    public float x;
-    public float y;
+    public final float x;
+    public final float y;
 
     /**
      Standard 2D constructor taking all values given
@@ -39,7 +39,7 @@ public class Vec2 {
     /**
      Get length of vector
      **/
-    public float length(){
+    private float length(){
         return (float) Math.sqrt(this.x * this.x + this.y * this.y);
     }
 

@@ -3,14 +3,13 @@ package scene;
 import camera.PerspectiveCamera;
 import light.Light;
 import utils.algebra.Vec3;
-import utils.io.Log;
 
 import java.util.*;
 
 public class Scene {
 
-    private ArrayList<SceneObject> mShapeList; // TODO: change SceneObject for class Shape
-    private ArrayList<Light> mLightList; // TODO: change SceneObject for class Light
+    private final ArrayList<SceneObject> mShapeList; // TODO: change SceneObject for class Shape
+    private final ArrayList<Light> mLightList; // TODO: change SceneObject for class Light
 
     private SceneObject mSceneCamera;
 

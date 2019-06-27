@@ -38,24 +38,12 @@ import utils.Globals;
 import utils.RgbColor;
 import utils.algebra.Vec3;
 import utils.io.Log;
-import java.io.File;
-
-
-import java.io.File;
-
 
 // Main application class. This is the routine called by the JVM to run the program.
 public class Main {
-
-    /** ****************************************************** */
-    /** ****************************************************** */
-
-
     // Initial method. This is where the show begins.
     public static void main(String[] args){
-        //Log.print("Init Main");
         Window renderWindow = new Window(Globals.imageWidth, Globals.imageHeight, Globals.outputTitle);
-
         // loop for animation rendering, for nice results set Globals.frames to 30 * animationDuration
         float frames = 0;
         if (Globals.animation) {
@@ -64,25 +52,18 @@ public class Main {
         for (int i = 0; i <= frames; i++){
             draw(renderWindow, i);
         }
-
     }
 
     private static void draw(Window renderWindow, int frame){
         Scene renderScene = new Scene();
-
         setupScene(renderScene, frame);
-
         raytraceScene(renderWindow, renderScene, frame);
     }
 
     private static void setupScene(Scene renderScene, int frame){
-        //Log.print("frame: " + frame);
         setupCameras(renderScene);
-
         setupCornellBox(renderScene);
-
         setupObjects(renderScene, frame);
-
         setupLights(renderScene);
     }
 
@@ -93,26 +74,9 @@ public class Main {
         /** * RENDER THEM ONLY, WHEN THERE ARE NO RANDOM LIGHTS ** */
         /** ****************************************************** */
 
-        if (Globals.randomLights == 0) {
-            if (Globals.aufgabe == 3) {
-                PointLight red = new PointLight(new Vec3(-2f, 3f, 2f), new RgbColor(1, 0, 0), 1f);
-                PointLight blue = new PointLight(new Vec3(0f, 3f, .25f), new RgbColor(0, 0, 1), 1f);
-                PointLight rg = new PointLight(new Vec3(2.75f, 2.75f, 0f), new RgbColor(1, 1, 0), 1f);
-                PointLight gb = new PointLight(new Vec3(0f, -6f, 0f), new RgbColor(0, 0, 1), 1f);
+        PointLight white = new PointLight(new Vec3(0f, 1.5f, 0f), new RgbColor(1f, 1f, 1f), 1f);
+        renderScene.addLight(white);
 
-                renderScene.addLight(red);
-                renderScene.addLight(blue);
-                renderScene.addLight(rg);
-                renderScene.addLight(gb);
-
-            }
-            if (Globals.aufgabe == 4) {
-                PointLight white = new PointLight(new Vec3(0f, 1.5f, 0f), new RgbColor(1f, 1f, 1f), 1f);
-                renderScene.addLight(white);
-            }
-
-
-        }
 
         /** ****************************************************** */
         /** ****************************************************** */
@@ -124,8 +88,10 @@ public class Main {
         /** ****************************************************** */
 
         // add random lights (set Globals.randomLights to amount of desired lights
-        for (int i = 0; i < Globals.randomLights; i++){
-            renderScene.addLight(new PointLight(new Vec3(Globals.rand(-1, 1),8f, Globals.rand(-19, -21)), new RgbColor(Globals.rand(0,1),Globals.rand(0,1),Globals.rand(0,1)), Globals.rand(0,2)/Globals.randomLights));
+        if (Globals.randomLights > 0) {
+            for (int i = 0; i < Globals.randomLights; i++) {
+                renderScene.addLight(new PointLight(new Vec3(Globals.rand(-1, 1), 8f, Globals.rand(-19, -21)), new RgbColor(Globals.rand(0, 1), Globals.rand(0, 1), Globals.rand(0, 1)), Globals.rand(0, 2) / Globals.randomLights));
+            }
         }
 
         /** ****************************************************** */
@@ -135,19 +101,12 @@ public class Main {
     }
 
     private static void setupCameras(Scene renderScene) {
-        Vec3 camPos;
-        if (Globals.aufgabe == 3) {
-            camPos = new Vec3(0, 0, 10);
-        }
-        else {
-            camPos = new Vec3(0, 0, 17);
-        }
+        Vec3 camPos = new Vec3(0, 0, 17);
         Vec3 viewPoint = new Vec3(0,0,0);
         Vec3 upVec = new Vec3(0,1,0);
         float viewAngle = 35 * Globals.RAD;
 
         renderScene.createPerspCamera(camPos, viewPoint, upVec, viewAngle, Globals.imageWidth, Globals.imageHeight);
-
     }
 
     private static void setupObjects(Scene renderScene, int frame) {
@@ -157,19 +116,12 @@ public class Main {
         /** * RENDER THEM ONLY, WHEN THERE ARE NO RANDOM LIGHTS ** */
         /** ****************************************************** */
 
-        // AUFGABE 3 - LIGHTS ARE GENERATED RANDOMLY (LINE 137ff)
-        if (Globals.randomSpheres == 0 && !Globals.loadObj && Globals.aufgabe == 3){
-            renderScene.addObject(new Sphere(new Vec3(-1.1f, 0, -1), .75f,  new Lambert(new RgbColor(.6f, .6f, .6f), 0, 0, .1f, .9f)));
-            renderScene.addObject(new Sphere(new Vec3(1, -.25f, 0), 1.25f,  new Lambert(new RgbColor(.6f, .6f, .6f),0, 0, .1f, .9f)));
-        }
 
-        if (Globals.randomSpheres == 0 && !Globals.loadObj && Globals.aufgabe == 4){
-            renderScene.addObject(new Sphere(new Vec3(-1.1f, -2f, -2.5f), 1f, new Phong(new RgbColor(1, 0, 0),0f, 0f, .4f, .5f, .5f)));
-            renderScene.addObject(new Sphere(new Vec3(1.1f, -2f, 1f), 1f, new Phong(new RgbColor(0, 1, 0),0f, 0f, .4f, .5f, .3f)));
+        //renderScene.addObject(new Sphere(new Vec3(-1.1f, -2f, -2.5f), 1f, new Phong(new RgbColor(1, 0, 0),0f, 0f, .4f, .5f, .5f)));
+        //renderScene.addObject(new Sphere(new Vec3(1.1f, -2f, 1f), 1f, new Phong(new RgbColor(0, 1, 0),0f, 0f, .4f, .5f, .3f)));
 
-            // FAKE LIGHT SOURCE, REAL LIGHT IS ACTUALLY PLACED WAY BELOW, TO MINIMIZE SHADOW FROM SQUARE ON TOP PLANE
-            renderScene.addObject(new Square(new Vec3(-.5f, 2.99f, -.5f), new Vec3(-.5f, 2.99f,.5f), new Vec3(.5f,2.99f,-.5f), new Lambert(new RgbColor(1,1,1),0, 0, 1, 0), new Vec3(-1, -1, -16)));
-        }
+        // FAKE LIGHT SOURCE, REAL LIGHT IS ACTUALLY PLACED WAY BELOW, TO MINIMIZE SHADOW FROM SQUARE ON TOP PLANE
+        renderScene.addObject(new Square(new Vec3(-.5f, 2.99f, -.5f), new Vec3(-.5f, 2.99f,.5f), new Vec3(.5f,2.99f,-.5f), new Lambert(new RgbColor(1,1,1),0, 0, 1, 0), new Vec3(-1, -1, -16)));
 
 
         /** ****************************************************** */
@@ -181,7 +133,7 @@ public class Main {
         /** *** RENDER ONLY, WHEN THERE ARE NO RANDOM SPHERES **** */
         /** ****************************************************** */
 
-        if (Globals.loadObj && Globals.randomSpheres == 0) {
+        if (Globals.loadObj) {
 
             parser.Parser.loadObjFile("teapot.obj");
 
@@ -194,7 +146,7 @@ public class Main {
                 // manually translate model
                 int translatex = 0;
                 int translatey = 0;
-                int translatez = -5;
+                int translatez = -3;
 
                 // scale model
                 float scale = 1f;
@@ -281,16 +233,22 @@ public class Main {
         // ADD COMPLETELY RANDOM SPHERES (amount in Globals.randomSpheres)
         for (int i = 1; i <= Globals.randomSpheres; i++){
 
-            float x = Globals.rand(-10,10);
-            float y = Globals.rand(-9,9);
-            float z = Globals.rand(-40,-20);
-            float radius = Globals.rand(1,4);
+            float x = Globals.rand(-4,4);
+            float y = Globals.rand(-3,3);
+            float z = Globals.rand(-9,0);
+            float radius = Globals.rand(1,4)*.25f;
             float r = Globals.rand(0,1);
             float g = Globals.rand(0,1);
             float b = Globals.rand(0,1);
-            float reflectivity = 0; //Globals.rand(0,1);
-            float refractivity = 0; //Globals.rand(0,1);
-            float k_a = Globals.rand(0,1)*.5f;
+            float reflectivity = Globals.rand(0,1);
+            float refractivity = Globals.rand(0,1);
+            if ((reflectivity + refractivity) > 1){
+                while ((reflectivity + refractivity) > 1){
+                    reflectivity *= 0.9;
+                    refractivity *= 0.9;
+                }
+            }
+            float k_a = Globals.rand(0,1)*.1f;
             float k_d = Globals.rand(0,1);
             float k_s = Globals.rand(0,1);
             if ((k_d + k_s) > 1){
@@ -301,7 +259,8 @@ public class Main {
             }
 
             renderScene.addObject(new Sphere(new Vec3(x,y,z), radius, new Phong(new RgbColor(r,g,b), reflectivity, refractivity, k_a, k_d, k_s)));
-            Log.print("i: " + i + " // pos: " + x + " " + y + " " + z +" // radius: " + radius + " // color: " + r + " " + g + " " + b + " // reflecivity: " + reflectivity + " // k_a: " + k_a + " // k_d: " + k_d + " // k_s: " + k_s);
+            // Log the material components of a random sphere, so you can save it if you like it!
+            Log.print("i: " + i + " // pos: " + x + " " + y + " " + z +" // radius: " + radius + " // color: " + r + " " + g + " " + b + " // reflectivity: " + reflectivity + " // refractivity: " + refractivity + " k_a: " + k_a + " // k_d: " + k_d + " // k_s: " + k_s);
         }
 
         /** ****************************************************** */
@@ -310,21 +269,19 @@ public class Main {
     }
 
     private static void setupCornellBox(Scene renderScene) {
-        if (Globals.aufgabe != 3) {
-            Plane planeBack = new Plane(new Vec3(0,0,-6),  new Lambert(new RgbColor(1,1,1),0f, 0f, .3f, .3f), new Vec3(0,0,1));
-            Plane planeLeft = new Plane(new Vec3(-4,0,0),  new Lambert(new RgbColor(1,0,0),0f, 0f, .3f, .3f), new Vec3(1,0,0));
-            Plane planeRight = new Plane(new Vec3(4,0,0),  new Lambert(new RgbColor(0,0,1),0f, 0f, .3f, .3f), new Vec3(-1,0,0));
-            Plane planeTop = new Plane(new Vec3(0,3f,0), new Lambert(new RgbColor(1,1, 1), 0f, 0f, .3f, .3f), new Vec3(0,-1,0));
-            Plane planeBottom = new Plane(new Vec3(0,-3f,0), new Lambert(new RgbColor(1,1,1), 0f, 0f, .3f, .3f), new Vec3(0,1,0));
-            //Plane planeFront = new Plane(new Vec3(0,0,18), new RgbColor(0,0,0), new Lambert(0f, 0f, .3f, .5f), new Vec3(0,1,0));
+
+            Plane planeBack = new Plane(new Vec3(0,0,-6),  new Lambert(new RgbColor(1f,1f,1f),.5f, 0f, .3f, .1f), new Vec3(0,0,1));
+            Plane planeLeft = new Plane(new Vec3(-4,0,0),  new Lambert(new RgbColor(1f,0,0),.5f, 0f, .3f, 0f), new Vec3(1,0,0));
+            Plane planeRight = new Plane(new Vec3(4,0,0),  new Lambert(new RgbColor(0,0,1f),.5f, 0f, .3f, 0f), new Vec3(-1,0,0));
+            Plane planeTop = new Plane(new Vec3(0,3f,0), new Lambert(new RgbColor(1f,1f, 1f), .5f, 0f, .3f, 0f), new Vec3(0,-1,0));
+            Plane planeBottom = new Plane(new Vec3(0,-3f,0), new Lambert(new RgbColor(1f,1f,1f), .5f, 0f, .3f, .0f), new Vec3(0,1,0));
+            Plane planeFront = new Plane(new Vec3(0,0,18), new Lambert(new RgbColor(1f,1f,1f),.5f, 0f, .3f, .0f), new Vec3(0,1,0));
             renderScene.addObject(planeBack);
             renderScene.addObject(planeLeft);
             renderScene.addObject(planeRight);
             renderScene.addObject(planeTop);
             renderScene.addObject(planeBottom);
-            //renderScene.addObject(planeFront);
-        }
-
+            renderScene.addObject(planeFront);
     }
 
     private static void raytraceScene(Window renderWindow, Scene renderScene, int frame){
@@ -334,30 +291,13 @@ public class Main {
                 renderScene,
                 renderWindow);
 
-        int width = renderWindow.getBufferedImage().getWidth();
         int height = renderWindow.getBufferedImage().getHeight();
         for(int i = 1; i < Globals.threads; i++){
             int yStart = (i-1) * (height / Globals.threads);
             int yEnd = i * (height / Globals.threads);
-            new Thread(() -> {
-                raytracer.renderScene(frame, yStart, yEnd);
-            }).start();
+            new Thread(() -> raytracer.renderScene(frame, yStart, yEnd)).start();
         }
         raytracer.renderScene(frame, (Globals.threads-1)*(height/Globals.threads), Globals.threads * (height/Globals.threads));
-
-        /*
-        new Thread(() -> {
-            raytracer.renderScene(frame, 0, 150);
-        }).start();
-        new Thread(() -> {
-            raytracer.renderScene(frame, 150, 300);
-        }).start();
-        new Thread(() -> {
-            raytracer.renderScene(frame, 300, 450);
-        }).start();
-
-        raytracer.renderScene(frame, 450, 600);
-        */
 
 
     }

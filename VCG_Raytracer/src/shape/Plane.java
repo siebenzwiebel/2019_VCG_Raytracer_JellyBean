@@ -3,12 +3,11 @@ package shape;
 import material.Material;
 import raytracer.Ray;
 import utils.Globals;
-import utils.RgbColor;
 import utils.algebra.Vec3;
 
 public class Plane extends Shape {
 
-    public Vec3 direction;
+    private final Vec3 direction;
 
     public Plane(Vec3 pos, Material material, Vec3 direction) {
         super(pos, material);
@@ -16,8 +15,7 @@ public class Plane extends Shape {
     }
 
     public Vec3 getNormal(Vec3 intersection){
-        Vec3 normal = (direction.sub(mPosition)).normalize();
-        return normal;
+        return (direction.sub(mPosition)).normalize();
     }
 
     public float isHitByRay(Ray ray){

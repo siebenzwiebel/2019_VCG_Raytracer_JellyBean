@@ -4,18 +4,16 @@ import light.Light;
 import raytracer.Ray;
 import scene.Scene;
 import scene.SceneObject;
-import utils.Globals;
 import utils.RgbColor;
 import utils.algebra.Vec3;
-import utils.io.Log;
 
 public class Lambert extends Material {
 
-    public float reflectivity;
-    public float refractivity;
-    public float k_a;
-    public float k_d;
-    public RgbColor matColor;
+    private final float reflectivity;
+    private final float refractivity;
+    private final float k_a;
+    private final float k_d;
+    private final RgbColor matColor;
 
 
 
@@ -37,7 +35,6 @@ public class Lambert extends Material {
     public RgbColor calculateColor(Ray lightRay, Light light, SceneObject object, Scene scene){
 
         RgbColor lambertColor = new RgbColor(0,0,0);
-        Vec3 campos = scene.perspCamera.getPos();
 
         //implement getnormal function for sphere
         Vec3 intersection = lightRay.getOrigin();

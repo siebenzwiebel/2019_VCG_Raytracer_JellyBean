@@ -3,13 +3,15 @@ package shape;
 import material.Material;
 import raytracer.Ray;
 import utils.Globals;
-import utils.RgbColor;
 import utils.algebra.Vec3;
-import utils.io.Log;
 
 public class Square extends Plane{
 
-    private Vec3 p1, p2, p3, e1, e2;
+    private final Vec3 p1;
+    private final Vec3 p2;
+    private final Vec3 p3;
+    private final Vec3 e1;
+    private final Vec3 e2;
 
 
     public Square(Vec3 pos, Vec3 p2, Vec3 p3, Material material, Vec3 direction) {
@@ -22,9 +24,8 @@ public class Square extends Plane{
 
     }
 
-    public Vec3 getNormal(){
-        Vec3 normal = (e2.cross(e1)).normalize();
-        return normal;
+    private Vec3 getNormal(){
+        return (e2.cross(e1)).normalize();
     }
 
     @Override

@@ -1,24 +1,20 @@
 package material;
 
-import camera.Camera;
-import camera.PerspectiveCamera;
 import light.Light;
 import raytracer.Ray;
 import scene.Scene;
 import scene.SceneObject;
-import utils.Globals;
 import utils.RgbColor;
 import utils.algebra.Vec3;
-import utils.io.Log;
 
 public class Phong extends Material {
 
-    protected float k_a;
-    protected float k_d;
-    protected float k_s;
-    public float reflectivity;
-    public float refractivity;
-    public RgbColor matColor;
+    private final float k_a;
+    private final float k_d;
+    private final float k_s;
+    private final float reflectivity;
+    private final float refractivity;
+    private final RgbColor matColor;
 
     public Phong(RgbColor matColor, float reflectivity, float refractivity, float k_a, float k_d, float k_s) {
         this.reflectivity = reflectivity;
@@ -42,8 +38,8 @@ public class Phong extends Material {
         Vec3 campos = scene.perspCamera.getPos();
 
         Vec3 intersection = lightRay.getOrigin();
-        Vec3 normalVector = object.getNormal(intersection);
-        Vec3 lightVector = lightRay.getDirection().normalize();
+        Vec3 N = object.getNormal(intersection);
+        Vec3 L = lightRay.getDirection().normalize();
 
 
         // calculate dis shit
@@ -66,7 +62,7 @@ public class Phong extends Material {
         // intensity of reflected light is proportional to cosine of angle between surface and incoming light direction
         // heißt: I_l ist proportional zu cos(theta) (=L*N)
 
-        float cosTheta = lightVector.scalar(normalVector);
+        float cosTheta = L.scalar(N);
         //Log.print("cosTheta: " + cosTheta);
         if (cosTheta == 0){
             L_N = 1;
@@ -80,7 +76,6 @@ public class Phong extends Material {
         else {
             L_N = cosTheta;
         }
-        //Log.print("test: " + lightDiffuse);
 
         RgbColor lightDiffuse = I_in.multScalar(L_N * k_d);
 
@@ -92,8 +87,7 @@ public class Phong extends Material {
         RgbColor lightSpecular = new RgbColor(0,0,0);
 
         float n = 30;
-        Vec3 N = normalVector;
-        Vec3 L = lightVector;
+
         Vec3 V = ((campos).sub(lightRay.getOrigin())).normalize();
 
         Vec3 R = ((N.multScalar(N.scalar(L))).multScalar(2)).sub(L);
