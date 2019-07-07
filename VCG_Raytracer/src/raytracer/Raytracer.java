@@ -125,6 +125,7 @@ public class Raytracer {
         // CHECK FOR INTERSECTION
         float t = POSITIVE_INFINITY; // distance
         SceneObject hitObject = null;
+        SceneObject shadowObject = null;
         boolean hit = false;
         RgbColor calcColor = new RgbColor(0, 0, 0);
 
@@ -136,20 +137,19 @@ public class Raytracer {
 
 
                 float tmin = object.isHitByRay(ray);
-                if (tmin > 0f && tmin < t) {
+                if (tmin > Globals.epsilon && tmin < t) {
                     t = tmin;
                     //Log.print(" " + t);
                     hitObject = object;
                     hit = true;
                 }
-
             }
 
             if (hit) {
                 // TODO: ADD LIGHT SAMPLING
                 for (Light light : mScene.getLightList()) {
                     //Ray secondaryRay = createSecondaryRay(ray.at(t), light.getPosition());
-                    Ray secondaryRay = createSecondaryRay(ray.at(t).add(light.getPosition().multScalar(Globals.epsilon)), light.getPosition());
+                    Ray secondaryRay = createSecondaryRay(ray.at(t).add(new Vec3(1,1,1).multScalar(Globals.epsilon)), light.getPosition());
                     Material mat = hitObject.getMaterial();
                     boolean inShadow = false;
                         for (SceneObject shadowingObject : mScene.getShapeList()) {
@@ -158,9 +158,8 @@ public class Raytracer {
                                 float tLight = (light.getPosition().sub(secondaryRay.getOrigin())).length();
 
                                 if (tmin2 > 0 && tmin2 < tLight) {
-
+                                    shadowObject=shadowingObject;
                                     inShadow = true;
-                                    break;
                                 }
                             }
 
@@ -168,6 +167,52 @@ public class Raytracer {
                     if (!inShadow){
                         calcColor = calcColor.add(mat.calculateColor(secondaryRay, light, hitObject, mScene) );
                     }
+
+                    if(inShadow){
+                        float k=0;
+                        float max=2000;
+                        float shadowValue = 1.5f;
+                        SceneObject hittObject = null;
+
+                        for(int i = 0; i<max ; i++){
+                            float xValue = (float)(Math.random()-0.5f)*2;
+                            float zValue = (float)(Math.random()-0.5f)*2;
+                            if(i<=max/4){
+                                xValue=(float)Math.random()*0.85f;
+                                zValue=(float)Math.random()*0.85f;
+                            }
+                            if(i>max/4 && i <= 2*max/4){
+                                xValue=(float)-Math.random()*0.85f;
+                                zValue=(float)-Math.random()*0.85f;
+                            }
+                            if(i>2*max/4 && i <= 3*max/4){
+                                xValue=(float)-Math.random()*0.85f;
+                                zValue=(float)Math.random()*0.85f;
+                            }
+                            if(i>3*max/4 && i <= 4*max/4){
+                                xValue=(float)Math.random()*0.85f;
+                                zValue=(float)-Math.random()*0.85f;
+                            }
+
+                            Ray shadowRay = createSecondaryRay(ray.at(t).add(new Vec3(1,1,1).multScalar(Globals.epsilon)), light.getPosition().add(new Vec3(xValue,0,zValue)));
+                            for (SceneObject object : mScene.getShapeList()) {
+                                float tmin = object.isHitByRay(shadowRay);
+                                float tt=POSITIVE_INFINITY;
+                                if (tmin > Globals.epsilon && tmin < tt) {
+                                    tt = tmin;
+                                    hittObject = object;
+                                }
+                            }
+                            if(shadowObject==hittObject){
+                                k=k+1;
+                            }
+                        }
+                        System.out.print(k+"\n");
+                        RgbColor calcTempColor = new RgbColor(0,0,0).add(mat.calculateColor(ray, light, hitObject, mScene)).multScalar(shadowValue-k/max*shadowValue);
+                        calcColor=calcTempColor;
+                    }
+                }
+
 
                 }
 
@@ -227,7 +272,7 @@ public class Raytracer {
                 }
 
 
-            }
+
 
 
         return calcColor;
