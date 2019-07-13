@@ -32,6 +32,16 @@ public class RgbColor {
         this.clamp();
     }
 
+    public float getRedValue(){
+        return this.red();
+    }
+    public float getGreenValue(){
+        return this.green();
+    }
+    public float getBlueValue(){
+        return this.blue();
+    }
+
     private RgbColor(Vec3 color){
         colors = color;
 

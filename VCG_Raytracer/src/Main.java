@@ -23,6 +23,7 @@
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+import light.AreaLight;
 import material.Phong;
 import parser.Parser;
 import light.PointLight;
@@ -74,7 +75,7 @@ public class Main {
         /** * RENDER THEM ONLY, WHEN THERE ARE NO RANDOM LIGHTS ** */
         /** ****************************************************** */
 
-        PointLight white = new PointLight(new Vec3(0f, 2.5f, 0f), new RgbColor(1f, 1f, 1f), 1f);
+        PointLight white = new PointLight(new Vec3(0f, 2.95f, 0f), new RgbColor(1f, 1f, 1f), 1f);
         renderScene.addLight(white);
 
 
@@ -117,12 +118,12 @@ public class Main {
         /** ****************************************************** */
 
 
-        renderScene.addObject(new Sphere(new Vec3(-1.75f, -1, 0), 1f, new Phong(new RgbColor(1, 0, 0),0f, 0f, .4f, .5f, .5f)));
+        renderScene.addObject(new Sphere(new Vec3(1.25f, -2f, 0), 1f, new Phong(new RgbColor(0, 0, 0),1, 0f, .4f, 0, 0)));
+        renderScene.addObject(new Sphere(new Vec3(-1.25f, -2f, 2), 1f, new Phong(new RgbColor(0, 0, 0),0, 1, .4f, 0, 0)));
         //renderScene.addObject(new Sphere(new Vec3(1.1f, -2f, 1f), 1f, new Phong(new RgbColor(0, 1, 0),0f, 0f, .4f, .5f, .3f)));
 
         // FAKE LIGHT SOURCE, REAL LIGHT IS ACTUALLY PLACED WAY BELOW, TO MINIMIZE SHADOW FROM SQUARE ON TOP PLANE
         renderScene.addObject(new Square(new Vec3(-.5f, 2.99f, -.5f), new Vec3(-.5f, 2.99f,.5f), new Vec3(.5f,2.99f,-.5f), new Lambert(new RgbColor(1,1,1),0, 0, 1, 0), new Vec3(-1, -1, -16)));
-
 
         /** ****************************************************** */
         /** ****************************************************** */
@@ -270,12 +271,12 @@ public class Main {
 
     private static void setupCornellBox(Scene renderScene) {
 
-            Plane planeBack = new Plane(new Vec3(0,0,-6),  new Lambert(new RgbColor(1f,1f,1f),0, 0f, .3f, .1f), new Vec3(0,0,1));
-            Plane planeLeft = new Plane(new Vec3(-4,0,0),  new Lambert(new RgbColor(1f,0,0),0, 0f, .3f, 0f), new Vec3(1,0,0));
-            Plane planeRight = new Plane(new Vec3(4,0,0),  new Lambert(new RgbColor(0,0,1f),0, 0f, .3f, 0f), new Vec3(-1,0,0));
-            Plane planeTop = new Plane(new Vec3(0,3f,0), new Lambert(new RgbColor(1f,1f, 1f), 0, 0f, .3f, 0f), new Vec3(0,-1,0));
-            Plane planeBottom = new Plane(new Vec3(0,-3f,0), new Lambert(new RgbColor(1f,1f,1f), 0, 0f, .3f, .0f), new Vec3(0,1,0));
-            Plane planeFront = new Plane(new Vec3(0,0,18), new Lambert(new RgbColor(1f,1f,1f),0, 0f, .3f, .0f), new Vec3(0,1,0));
+            Plane planeBack = new Plane(new Vec3(0,0,-6),  new Lambert(new RgbColor(1f,1f,1f),0, 0f, 0.4f, 0.3f), new Vec3(0,0,1));
+            Plane planeLeft = new Plane(new Vec3(-4,0,0),  new Lambert(new RgbColor(1f,0,0),0, 0f, 0.4f, 0.3f), new Vec3(1,0,0));
+            Plane planeRight = new Plane(new Vec3(4,0,0),  new Lambert(new RgbColor(0,0,1f),0, 0f, 0.4f, 0.3f), new Vec3(-1,0,0));
+            Plane planeTop = new Plane(new Vec3(0,3f,0), new Lambert(new RgbColor(1f,1f, 1f), 0, 0f, 0.4f, 0.3f), new Vec3(0,-1,0));
+            Plane planeBottom = new Plane(new Vec3(0,-3f,0), new Lambert(new RgbColor(1f,1f,1f), 0, 0f, 0.4f, 0f), new Vec3(0,1,0));
+            Plane planeFront = new Plane(new Vec3(0,0,18), new Lambert(new RgbColor(1f,1f,1f),0, 0f, 0.4f, 0.3f), new Vec3(0,1,0));
             renderScene.addObject(planeBack);
             renderScene.addObject(planeLeft);
             renderScene.addObject(planeRight);
