@@ -30,7 +30,6 @@ public class Sphere extends Shape {
 
         // to 3d
         Vec3 direction = new Vec3(newRay4DDirection.x, newRay4DDirection.y, newRay4DDirection.z);
-        Vec3 position = new Vec3(newRay4DOrigin.x, newRay4DOrigin.y, newRay4DOrigin.z);
 
         float a = direction.scalar(direction);
         float b = 2 * oc.scalar(direction);
@@ -53,7 +52,6 @@ public class Sphere extends Shape {
                 if (root1 < root2) return  root1;
                 else return  root2;
             }
-            //  return (float) ((-b - Math.sqrt(discriminant)) / 2*a);
         }
 
     }

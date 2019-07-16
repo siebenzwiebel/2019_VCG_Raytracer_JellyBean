@@ -25,11 +25,22 @@ public class Lambert extends Material {
         this.matColor = matColor;
     }
 
+
+
     public float getReflectivity() {
         return reflectivity;
     }
     public float getRefractivity() {
         return refractivity;
+    }
+    public float getAlbedo(){return k_a;}
+
+    public RgbColor calculateAmbientColor(Ray lightRay, Light light, SceneObject object, Scene scene){
+
+        // AMBIENT
+        // I_a * k_a
+        return (matColor.multScalar(k_a)).multScalar(light.getIntensity());
+
     }
 
     public RgbColor calculateColor(Ray lightRay, Light light, SceneObject object, Scene scene){
@@ -44,70 +55,40 @@ public class Lambert extends Material {
         // AMBIENT
         // I_a * k_a
 
-        RgbColor I_a = matColor;
         RgbColor I_in = light.getColor();
 
-        RgbColor lightAmbient = I_a.multScalar(k_a);
-
-        // DIFFUSE
-        // L_d = k_d * I_in( N*L)
-
-        float L_N;
-
-        // intensity of reflected light is proportional to cosine of angle between surface and incoming light direction
-        // heißt: I_l ist proportional zu cos(theta) (=L*N)
-
-        float cosTheta = lightVector.scalar(normalVector);
-        //Log.print("cosTheta: " + cosTheta);
-        if (cosTheta == 0){
-            L_N = 1;
-        }
-        else if (cosTheta == 1){
-            L_N = 0;
-        }
-        else if (cosTheta < 0){
-            L_N = 0;
-        }
-        else {
-            L_N = cosTheta;
-        }
-        //Log.print("test: " + lightDiffuse);
-
-        RgbColor lightDiffuse = I_in.multScalar(L_N * k_d);
+        RgbColor lightAmbient = matColor.multScalar(k_a);
+        RgbColor lightDiffuse;
 
 
-        /*
-        // SPECULAR
-        // I_in * k_s * ( ( n + 2 ) / (2 * PI ) ) * ( R * V )^n
+            // DIFFUSE
+            // L_d = k_d * I_in( N*L)
 
-        RgbColor lightSpecular = new RgbColor(0,0,0);
+            float L_N;
 
-        float n = 32;
-        float k_s = 1 - k_d;
-        Vec3 N = normalVector;
-        Vec3 L = lightVector;
-        Vec3 V = ((campos).sub(lightRay.getOrigin())).normalize();
+            // intensity of reflected light is proportional to cosine of angle between surface and incoming light direction
+            // heißt: I_l ist proportional zu cos(theta) (=L*N)
 
-        Vec3 R = (N.multScalar(N.scalar(L)).sub(L)).multScalar(2);
+            float cosTheta = lightVector.scalar(normalVector);
 
+            if (cosTheta == 0) {
+                L_N = 1;
+            } else if (cosTheta == 1) {
+                L_N = 0;
+            } else if (cosTheta < 0) {
+                L_N = 0;
+            } else {
+                L_N = cosTheta;
+            }
 
-        float R_V = R.scalar(V);
+            lightDiffuse = I_in.multScalar(L_N * k_d);
 
-
-        for (int i=1; i<n; i++){
-            R_V *= R_V;
-        }
-        if (R_V < 1.0 && R_V > 0.0){
-            lightSpecular = I_in.multScalar((k_s * ( ( n + 2 ) / (float)( 2 * Math.PI ) ) * R_V ));
-        }
-        */
 
 
         //Log.print("lambertColor: " + lambertColor);
         //Log.print("A: " + lightAmbient.toString() + " D: " + lightDiffuse.toString() + " S: " + lightSpecular.toString());
-        lambertColor = ((lambertColor.add(lightAmbient)).add(lightDiffuse)).multScalar(light.getIntensity());
-
-        return lambertColor;
+        lambertColor = ((lambertColor.add(lightAmbient)).add(lightDiffuse));
+        return lambertColor.multScalar(light.getIntensity());
     }
 
 }

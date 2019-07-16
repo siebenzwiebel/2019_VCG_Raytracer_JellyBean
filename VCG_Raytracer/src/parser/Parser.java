@@ -23,7 +23,8 @@ public class Parser {
 
         FileReader fr = null;
         try{
-            String path = "/users/sd/2019_VCG_Raytracer_JellyBean/VCG_Raytracer/models/" + filePath;
+            String path = filePath;
+
             fr = new FileReader(new File(path));
         } catch (FileNotFoundException e) {
             e.printStackTrace();

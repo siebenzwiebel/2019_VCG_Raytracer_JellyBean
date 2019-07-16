@@ -31,6 +31,17 @@ public class Phong extends Material {
     public float getRefractivity() {
         return refractivity;
     }
+    public float getAlbedo(){return k_a;}
+
+    public RgbColor calculateAmbientColor(Ray lightRay, Light light, SceneObject object, Scene scene){
+
+        // AMBIENT
+        // I_a * k_a
+
+
+        return (matColor.multScalar(k_a)).multScalar(light.getIntensity());
+
+    }
 
     public RgbColor calculateColor(Ray lightRay, Light light, SceneObject object, Scene scene){
 
@@ -41,19 +52,12 @@ public class Phong extends Material {
         Vec3 N = object.getNormal(intersection);
         Vec3 L = lightRay.getDirection().normalize();
 
-
-        // calculate dis shit
-        // Id = Il*rd
-        // AMBIENT - SHOULD BE OBJECT COLOR?
-        //
-
         // AMBIENT
         // I_a * k_a
 
-        RgbColor I_a = matColor;
         RgbColor I_in = light.getColor();
 
-        RgbColor lightAmbient = I_a.multScalar(k_a);
+        RgbColor lightAmbient = matColor.multScalar(k_a);
 
         // DIFFUSE
         // L_d = k_d * I_in( N*L)
@@ -63,7 +67,6 @@ public class Phong extends Material {
         // heißt: I_l ist proportional zu cos(theta) (=L*N)
 
         float cosTheta = L.scalar(N);
-        //Log.print("cosTheta: " + cosTheta);
         if (cosTheta == 0){
             L_N = 1;
         }
@@ -78,7 +81,6 @@ public class Phong extends Material {
         }
 
         RgbColor lightDiffuse = I_in.multScalar(L_N * k_d);
-
 
 
         // SPECULAR
@@ -96,16 +98,16 @@ public class Phong extends Material {
         float R_V = R.scalar(V);
 
         if (R_V < 1.0 && R_V > 0.0){
-            lightSpecular = I_in.multScalar((k_s /** ((n+2)/(2* (float) Math.PI))*/ * (float) Math.pow(R_V,n)));
+            lightSpecular = I_in.multScalar( (k_s * ((n+2)/(2* (float) Math.PI)) * (float) Math.pow(R_V,n)) );
         }
 
 
 
         //Log.print("lambertColor: " + lambertColor);
         //Log.print("A: " + lightAmbient.toString() + " D: " + lightDiffuse.toString() + " S: " + lightSpecular.toString());
-        phongColor = (((phongColor.add(lightAmbient)).add(lightDiffuse)).add(lightSpecular));//.multScalar(light.getIntensity());
+        phongColor = (((phongColor.add(lightAmbient)).add(lightDiffuse)).add(lightSpecular));
 
-        return phongColor;
+        return phongColor.multScalar(light.getIntensity());
     }
 
     public RgbColor getColor() {

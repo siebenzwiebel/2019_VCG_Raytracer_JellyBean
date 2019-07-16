@@ -13,4 +13,13 @@ public class PointLight extends Light {
         return new RgbColor(1,1,1);
     }
 
+    @Override
+    public float getLength() {
+        return 0;
+    }
+
+    @Override
+    public int getDensity() {
+        return 0;
+    }
 }

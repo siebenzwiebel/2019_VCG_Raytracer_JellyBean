@@ -64,16 +64,16 @@ public class Raytracer {
     private static double stopTime(long tStart){
         long tEnd = System.currentTimeMillis();
         long tDelta = tEnd - tStart;
-        return tDelta / 1000.0;
+        return tDelta * .001f;
     }
 
     public void renderScene(int frame, int yStart, int yEnd){
         //Log.print(this, "Prepare rendering at " + String.valueOf(stopTime(mtStart)));
 
 
-
+        int bufferedImageWidth = mBufferedImage.getWidth();
         for(float y = yStart; y < yEnd; y++) {
-            for (float x = 0f; x < mBufferedImage.getWidth(); x++) {
+            for (float x = 0f; x < bufferedImageWidth; x++) {
                 //RgbColor color = new RgbColor(0,0,0);
 
                 //RgbColor stl = traceRay(createPrimaryRay(new Vec2(x - .25f, y + .25f)), recursions).multScalar(.25f);
@@ -83,18 +83,25 @@ public class Raytracer {
 
 
 
-                // EASY GRID SAMPLING -- just set Globals.sampling to anythong greater than 1
+                // EASY GRID SAMPLING -- just set Globals.sampling to anything greater than 1
                 RgbColor sampledColor = new RgbColor(0,0,0);
+                if(Globals.sampling > 1) {
+                    //Log.print("x: " + x + " y: " + y);
+                    // TODO: SAMPLE NOT EVERY 1/x OF THE PIXEL, INSTEAD DO IT ADAPTIVE: SPLIT, IF COLORS DIFFER TOO MUCH, THEN GO DEEPER :)
+                    float incr = (float) 1 / Globals.sampling;
+                    float incrHalf = incr * .5f;
+                    for (int ySub = 0; ySub < Globals.sampling; ySub++) {
+                        for (float xSub = 0; xSub < Globals.sampling; xSub++) {
+                            float xRand = Globals.rand(-1, 1) * incrHalf;
+                            float yRand = Globals.rand(-1, 1) * incrHalf;
+                            //Log.print("xnew: " + (x + (incr / 2) + (xSub * incr)) + " ynew: " + (y + (incr / 2) + (ySub * incr)));
+                            sampledColor = sampledColor.add(traceRay(createPrimaryRay(new Vec2((x + incrHalf + (xSub * incr)) + xRand, y + incrHalf + (ySub * incr) + yRand)), recursions, 0).multScalar(Globals.sampleFraction));
 
-                // TODO: SAMPLE NOT EVERY 1/x OF THE PIXEL, INSTEAD DO IT ADAPTIVE: SPLIT, IF COLORS DIFFER TOO MUCH, THEN GO DEEPER :)
-                float incr = (float) 1 / Globals.sampling;
-                for(int ySub = 0; ySub < Globals.sampling; ySub++) {
-                    for (float xSub = 0; xSub < Globals.sampling; xSub++) {
-                        // TODO: REPLACE RANDOMNESS WITH BLUE NOISE
-                        float xRand = Globals.rand(-1,1) * .01f * Globals.sampleFraction;
-                        float yRand = Globals.rand(-1,1) * .01f * Globals.sampleFraction;
-                        sampledColor = sampledColor.add(traceRay(createPrimaryRay(new Vec2((x - .5f + (xSub * incr)) + xRand, y - .5f + (ySub * incr) + yRand)), recursions).multScalar(Globals.sampleFraction));
+                        }
                     }
+                }
+                else {
+                    sampledColor = sampledColor.add(traceRay(createPrimaryRay(new Vec2(x, y)), recursions, 0));
                 }
 
                 //RgbColor sm = traceRay(createPrimaryRay(new Vec2(x, y)), recursions).multScalar(.5f);
@@ -111,8 +118,8 @@ public class Raytracer {
 
     private Ray createPrimaryRay(Vec2 pixelPoint){
 
-        int x = (int) pixelPoint.x;
-        int y = (int) pixelPoint.y;
+        float x = pixelPoint.x;
+        float y = pixelPoint.y;
 
         // get correct ray from camera
         return mScene.perspCamera.rayFor(x, y);
@@ -157,18 +164,18 @@ public class Raytracer {
         return Nb;
     }
 
-    Vec3 uniformSampleHemisphere(float r1,float r2)
+    Vec3 uniformSampleHemisphere(float r1, float r2)
     {
         // cos(theta) = r1 = y
         // cos^2(theta) + sin^2(theta) = 1 -> sin(theta) = srtf(1 - cos^2(theta))
-        float sinTheta =(float) Math.sqrt(1 - (r1 * r1));
+        float sinTheta = r2; //(float) Math.sqrt(1 - (r1 * r1));
         float phi = (float) (2 * Math.PI * r2);
         float x = (float) (sinTheta * Math.cos(phi));
         float z = (float) (sinTheta * Math.sin(phi));
         return new Vec3(x, r1, z);
     }
 
-    private RgbColor traceRay(Ray ray, int recursions) {
+    private RgbColor traceRay(Ray ray, int recursions, int giRec) {
         // CHECK FOR INTERSECTION
         float t = POSITIVE_INFINITY; // distance
         SceneObject hitObject = null;
@@ -179,183 +186,156 @@ public class Raytracer {
         float redValue=0;
         float greenValue=0;
         float blueValue=0;
+        float kshadow = 0;
+        float shadowValue = 0.925f;
 
 
 
 
             for (SceneObject object : mScene.getShapeList()) {
-
-
                 float tmin = object.isHitByRay(ray);
                 if (tmin > Globals.epsilon && tmin < t) {
                     t = tmin;
-                    //Log.print(" " + t);
                     hitObject = object;
                     hit = true;
                 }
             }
 
             if (hit) {
-                // TODO: ADD LIGHT SAMPLING
+
                 for (Light light : mScene.getLightList()) {
                     //Ray secondaryRay = createSecondaryRay(ray.at(t), light.getPosition());
                     Ray secondaryRay = createSecondaryRay(ray.at(t).add(new Vec3(1,1,1).multScalar(Globals.epsilon)), light.getPosition());
                     Material mat = hitObject.getMaterial();
-
                     boolean inShadow = false;
-                        for (SceneObject shadowingObject : mScene.getShapeList()) {
-                            if (shadowingObject != hitObject) {
-                                float tmin2 = shadowingObject.isHitByRay(secondaryRay);
-                                float tLight = (light.getPosition().sub(secondaryRay.getOrigin())).length();
+                    for (SceneObject shadowingObject : mScene.getShapeList()) {
 
-                                if (tmin2 > 0 && tmin2 < tLight) {
-                                    shadowObject=shadowingObject;
-                                    inShadow = true;
-                                }
+                        if (shadowingObject != hitObject) {
+                            float tmin2 = shadowingObject.isHitByRay(secondaryRay);
+                            float tLight = (light.getPosition().sub(secondaryRay.getOrigin())).length();
+
+                            if (tmin2 > 0 && tmin2 < tLight) {
+                                inShadow = true;
+                                break;
                             }
-
                         }
+
+                    }
+
                     if (!inShadow){
                         calcColor = calcColor.add(mat.calculateColor(secondaryRay, light, hitObject, mScene) );
                     }
-
-                    else {  //               && ligth=Arealight
-                        float k=0;
-                        float shadowValue = 0.925f; // eigentlich 1 aber dann sieht man Schatten kaum
-                        SceneObject hittObject = null;
-
-                        for(int i = 0; i<Globals.shadowRays ; i++){        // for schleife für density
-                            float xValue = (float)(Math.random()-0.5f)*2;
-                            float zValue = (float)(Math.random()-0.5f)*2;
-                            if(i<=Globals.shadowRays/4){
-                                xValue=(float)Math.random();
-                                zValue=(float)Math.random();
-                            }
-                            if(i>Globals.shadowRays/4 && i <= 2*Globals.shadowRays/4){
-                                xValue=(float)-Math.random();
-                                zValue=(float)-Math.random();
-                            }
-                            if(i>2*Globals.shadowRays/4 && i <= 3*Globals.shadowRays/4){
-                                xValue=(float)-Math.random();
-                                zValue=(float)Math.random();
-                            }
-                            if(i>3*Globals.shadowRays/4 && i <= 4*Globals.shadowRays/4){
-                                xValue=(float)Math.random();
-                                zValue=(float)-Math.random();
-                            }
-
-                            Ray shadowRay = createSecondaryRay(ray.at(t).add(light.getPosition().add(new Vec3(xValue,0,zValue).multScalar(Globals.epsilon))), light.getPosition().add(new Vec3(xValue,0,zValue)));
-                            for (SceneObject object : mScene.getShapeList()) {
-                                float tmin = object.isHitByRay(shadowRay);
-                                float tt=POSITIVE_INFINITY;
-                                if (tmin > Globals.epsilon && tmin < tt) {
-                                    tt = tmin;
-                                    hittObject = object;
-                                }
-                            }
-                            if(shadowObject==hittObject){
-                                k=k+1;
-                            }
-                        }
-                        RgbColor calcTempColor = new RgbColor(0,0,0).add(mat.calculateColor(ray, light, hitObject, mScene)).multScalar(shadowValue-k/Globals.shadowRays*shadowValue);
-                        calcColor=calcTempColor;
+                    else{
+                        calcColor = calcColor.add(mat.calculateAmbientColor(secondaryRay, light, hitObject, mScene));
                     }
-                }
 
 
                 }
 
-                if (recursions < Globals.recursionDepth && hitObject != null) {
 
-                    recursions++;
-                    if (hitObject.getMaterial().getReflectivity() != 0) {
-
-                        Vec3 N = hitObject.getNormal(ray.at(t));
-                        Vec3 I = ray.getDirection();
-
-
-                        Vec3 refVec = I.sub(N.multScalar(I.scalar(N)*2));
-                        Ray refRay = new Ray(ray.at(t),refVec.normalize());
-
-                        refVec = I.sub(N.multScalar(2f * (I.scalar(N))));
-                        refRay = new Ray(ray.at(t).add(hitObject.getNormal(ray.at(t)).multScalar(Globals.epsilon)), refVec);
-
-                        calcColor = calcColor.add(traceRay(refRay, recursions).multScalar(hitObject.getMaterial().getReflectivity()));
-                        //return calcColor.add( hitObject.getColor().multScalar(Globals.ambient));
-                   }
-                    //recursiveDepth =0;
-                    //calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
-                    // TODO: ADD FRESNEL, CURRENTLY k_r AND k_t ARE DEFINED WHEN CREATING MATERIALS (SHOULD BE k_r * refl_color + (1-k_r) * refr_color*/
-
-                    if (hitObject.getMaterial().getRefractivity() != 0) {
-
-                        Vec3 normal = hitObject.getNormal(ray.at(t)).normalize();
-                        Vec3 I = ray.getDirection().normalize();
-                        double NdotI = normal.scalar(I);
-                        double etai = 1;
-                        double etat = Globals.nGlass;
-
-                        if (NdotI < 0) {
-                            NdotI = -1 * NdotI;
-                        } else {
-                            normal = normal.multScalar(-1);
-                            double temp = etai;
-                            etai = etat;
-                            etat = temp;
-                        }
-
-                        double eta = etai / etat;
-                        double k = 1 - (eta * eta) * (1 - NdotI * NdotI);
-                        if (k >= 0f) {
-                            //return calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
-
-                            Vec3 refrDirection = I.add(normal.multScalar((float) NdotI)).multScalar((float) eta).sub(normal.multScalar((float) Math.sqrt(k)));
-
-                            Ray refrRay = new Ray(ray.at(t).add(refrDirection.normalize().multScalar(Globals.epsilon)), refrDirection.normalize());
-                            calcColor = calcColor.add(traceRay(refrRay, recursions).multScalar(hitObject.getMaterial().getRefractivity()));
-                        }
-                        //recursiveDepth =0;
-                        //return calcColor.multScalar(hitObject.getMaterial().getRefractivity());
-
-                    }
-                }
-
-        if(indirectLightRecursions<Globals.lightRecursionDepth && ((hitObject.getMaterial().getReflectivity()+hitObject.getMaterial().getRefractivity())==0)){
-            Vec3 Nt = new Vec3(0,0,0);
-            Vec3 Nb = new Vec3(0,0,0);
-            Nt=createCoordinateSystemNT(hitObject.getNormal(ray.at(t)),Nt,Nb);
-            Nb=createCoordinateSystemNB(hitObject.getNormal(ray.at(t)),Nt,Nb);
-            indirectLightRecursions++;
-            for(int n =0;n<Globals.lightRecursionRays;++n){
-                float theta = (float) (Math.random() * Math.PI);
-                float cosTheta = (float) Math.cos(theta);
-                float sinTheta = (float) Math.sin(theta);
-
-                Vec3 sample = uniformSampleHemisphere(cosTheta,sinTheta);
-                Vec3 sampleWorld = new Vec3(
-                        sample.x * Nb.x + sample.y * hitObject.getNormal(ray.at(t)).x + sample.z * Nt.x,
-                        sample.x * Nb.y + sample.y * hitObject.getNormal(ray.at(t)).y + sample.z * Nt.y,
-                        sample.x * Nb.z + sample.y * hitObject.getNormal(ray.at(t)).z + sample.z * Nt.z);
-
-                Ray indirectLightRay = new Ray(ray.at(t),sampleWorld.normalize());
-                RgbColor sampleColor = traceRay(indirectLightRay,recursions);
-                redValue=(redValue+((sampleColor.getRedValue()*0.25f)));            // wie stark soll R/G/B gewichtet werden -> eigentlich cosTheta anstatt der Wert aber dann sieht es falsch aus
-                greenValue=(greenValue+((sampleColor.getGreenValue()*0.25f)));
-                blueValue=(blueValue+((sampleColor.getBlueValue()*0.25f)));
             }
-            indirectLightContrib = new RgbColor(redValue/Globals.lightRecursionRays,greenValue/Globals.lightRecursionRays,blueValue/Globals.lightRecursionRays);
-            indirectLightRecursions=0;
-        }
 
-        float multiplyValue = (float)(1/Math.PI); // aus der Formel für Monte Carlo Raytracing
-        float multiplyValue2 = 2; // Bild heller/dunkler machen
-        float indirectLightValue = 1.5f; // Wie "stark" soll das indirekt Licht sein
-        if(hitObject != null &&(hitObject.getMaterial().getReflectivity() !=0  || hitObject.getMaterial().getRefractivity() !=0)) {  // notwendig -> sonst flecken auf den kugeln bei refl/refr
-            multiplyValue = 1;
-            multiplyValue2 = 1;
-        }
+            if (recursions < Globals.recursionDepth && hitObject != null) {
 
+                recursions++;
+                if (hitObject.getMaterial().getReflectivity() != 0) {
+
+                    Vec3 N = hitObject.getNormal(ray.at(t));
+                    Vec3 I = ray.getDirection();
+
+
+                    Vec3 refVec = I.sub(N.multScalar(I.scalar(N) * 2));
+                    Ray refRay = new Ray(ray.at(t), refVec.normalize());
+
+                    refVec = I.sub(N.multScalar(2f * (I.scalar(N))));
+                    refRay = new Ray(ray.at(t).add(hitObject.getNormal(ray.at(t)).multScalar(Globals.epsilon)), refVec);
+
+                    calcColor = calcColor.add(traceRay(refRay, recursions, 0).multScalar(hitObject.getMaterial().getReflectivity()));
+                    //return calcColor.add( hitObject.getColor().multScalar(Globals.ambient));
+                }
+                //recursiveDepth =0;
+                //calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
+                // TODO: ADD FRESNEL, CURRENTLY k_r AND k_t ARE DEFINED WHEN CREATING MATERIALS (SHOULD BE k_r * refl_color + (1-k_r) * refr_color*/
+
+                if (hitObject.getMaterial().getRefractivity() != 0) {
+
+                    Vec3 normal = hitObject.getNormal(ray.at(t)).normalize();
+                    Vec3 I = ray.getDirection().normalize();
+                    double NdotI = normal.scalar(I);
+                    double etai = 1;
+                    double etat = Globals.nGlass;
+
+                    if (NdotI < 0) {
+                        NdotI = -1 * NdotI;
+                    } else {
+                        normal = normal.multScalar(-1);
+                        double temp = etai;
+                        etai = etat;
+                        etat = temp;
+                    }
+
+                    double eta = etai / etat;
+                    double k = 1 - (eta * eta) * (1 - NdotI * NdotI);
+                    if (k >= 0f) {
+                        //return calcColor = calcColor.add( hitObject.getColor().multScalar(Globals.ambient) );
+
+                        Vec3 refrDirection = I.add(normal.multScalar((float) NdotI)).multScalar((float) eta).sub(normal.multScalar((float) Math.sqrt(k)));
+
+                        Ray refrRay = new Ray(ray.at(t).add(refrDirection.normalize().multScalar(Globals.epsilon)), refrDirection.normalize());
+                        calcColor = calcColor.add(traceRay(refrRay, recursions, 0).multScalar(hitObject.getMaterial().getRefractivity()));
+                    }
+                    //recursiveDepth =0;
+                    return calcColor.multScalar(hitObject.getMaterial().getRefractivity());
+
+                }
+            }
+            if (Globals.lightRecursionDepth > 0 && giRec <= Globals.lightRecursionDepth && hitObject != null && ((hitObject.getMaterial().getReflectivity() + hitObject.getMaterial().getRefractivity()) == 0)) {
+                for(int i = 0; i < Globals.lightRecursionDepth; i++) {
+                    Vec3 Nt = new Vec3(0, 0, 0);
+                    Vec3 Nb = new Vec3(0, 0, 0);
+                    Nt = createCoordinateSystemNT(hitObject.getNormal(ray.at(t)), Nt, Nb);
+                    Nb = createCoordinateSystemNB(hitObject.getNormal(ray.at(t)), Nt, Nb);
+                    //indirectLightRecursions++;
+                    RgbColor sampleColor = new RgbColor(0,0,0);
+                    for (int n = 0; n < Globals.lightRecursionRays; n++) {
+                        float theta = (float) (Math.random() * Math.PI);
+                        float cosTheta = (float) Math.cos(theta);
+                        float sinTheta = (float) Math.sin(theta);
+
+                        Vec3 sample = uniformSampleHemisphere(cosTheta, sinTheta);
+
+                        Vec3 sampleWorld = new Vec3(
+                                sample.x * Nb.x + sample.y * hitObject.getNormal(ray.at(t)).x + sample.z * Nt.x,
+                                sample.x * Nb.y + sample.y * hitObject.getNormal(ray.at(t)).y + sample.z * Nt.y,
+                                sample.x * Nb.z + sample.y * hitObject.getNormal(ray.at(t)).z + sample.z * Nt.z
+                        );
+
+                        Ray indirectLightRay = new Ray(ray.at(t), sampleWorld.normalize());
+                        giRec+=1;
+                        sampleColor = (traceRay(indirectLightRay, recursions, giRec));
+
+                        redValue = (redValue + ((sampleColor.getRedValue() * cosTheta)));            // wie stark soll R/G/B gewichtet werden -> eigentlich cosTheta anstatt der Wert aber dann sieht es falsch aus
+                        greenValue = (greenValue + ((sampleColor.getGreenValue() * cosTheta)));
+                        blueValue = (blueValue + ((sampleColor.getBlueValue() * cosTheta)));
+                    }
+                    //indirectLightContrib = indirectLightContrib.add(sampleColor).multScalar(1/Globals.lightRecursionRays);
+                    indirectLightContrib = indirectLightContrib.add(new RgbColor(redValue / Globals.lightRecursionRays, greenValue / Globals.lightRecursionRays, blueValue / Globals.lightRecursionRays));
+                    //indirectLightRecursions = 0;
+                }
+            }
+
+            float multiplyValue = (hitObject != null ? hitObject.getMaterial().getAlbedo() / (float)Math.PI : 1); // aus der Formel für Monte Carlo Raytracing
+            float multiplyValue2 = 3f; // Bild heller/dunkler machen
+            float indirectLightValue = 1f; // Wie "stark" soll das indirekt Licht sein
+            if (hitObject != null && (hitObject.getMaterial().getReflectivity() != 0 || hitObject.getMaterial().getRefractivity() != 0)) {  // notwendig -> sonst flecken auf den kugeln bei refl/refr
+                multiplyValue = 1;
+                multiplyValue2 = 1;
+            }
+
+        //return calcColor;
+        //return (calcColor.add(indirectLightContrib)).multScalar(multiplyValue);
         return calcColor.multScalar(multiplyValue).add(indirectLightContrib.multScalar(indirectLightValue)).multScalar(multiplyValue2);
+        //return ((calcColor.multScalar(multiplyValue2)).add(indirectLightContrib.multScalar(indirectLightValue))).multScalar(multiplyValue);
 
     }
 

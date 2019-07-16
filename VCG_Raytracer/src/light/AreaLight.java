@@ -2,42 +2,52 @@ package light;
 
 import material.Lambert;
 import shape.Square;
+import utils.Globals;
 import utils.RgbColor;
 import utils.algebra.Vec3;
 import scene.Scene;
+import utils.io.Log;
 
 
-public class AreaLight{
+public class AreaLight extends Light{
 
-    public static float length;
-    public static Vec3 positionAreaLight;
-    public static int density;
-    public static float intensityAreaLigth;
-    public static Vec3 colorAreaLigth;
+    private float length;
+    private int density;
 
-    public AreaLight(float length, Vec3 positionAreaLight,int density,float intensityAreaLigth,Vec3 colorAreaLigth)
+
+    public AreaLight(Vec3 position, RgbColor color, float intensity, float length, int density, Scene renderScene)
     {
+        super(position, color, intensity);
         this.length=length;
-        this.positionAreaLight=positionAreaLight;
         this.density=density;
-        this.intensityAreaLigth=intensityAreaLigth;
-        this.colorAreaLigth=colorAreaLigth;
+
+        // create a lot of point lights with fraction of intensity. easy.
+        float half = Globals.lightSamples;
+        float step = length/half;
+        float stepHalf = step*.5f;
+        float lengthHalf = length * .5f;
+        float xBoundary = (position.x + lengthHalf - stepHalf);
+        float zBoundary = (position.z + lengthHalf - stepHalf);
+        Log.print("step: " + step);
+        for (float x =  position.x - lengthHalf + stepHalf; x <= xBoundary; x += step){
+            for (float z = position.z - lengthHalf + stepHalf; z <= zBoundary; z += step){
+                float randx = Globals.rand(-1,1)*stepHalf;
+                float randcosx = (float)Math.cos(Globals.rand(-1,1))*stepHalf;
+
+                float randz = Globals.rand(-1,1)*.5f*stepHalf;
+                float randcosz = (float)Math.cos(Globals.rand(-1,1))*stepHalf;
+
+                PointLight sampleLight = new PointLight(new Vec3(x+randcosx, position.y, z+randcosz), color, intensity/density);
+                //Log.print("x: " + x + " y: " + position.y + "z: " + z);
+                renderScene.addLight(sampleLight);
+            }
+        }
+
+
     }
 
-
-    public static void addAreaLigth(Scene renderScene,AreaLight areaLight){
-        renderScene.addObject(new Square(new Vec3(-length/2+positionAreaLight.x, positionAreaLight.y, -length/2+positionAreaLight.z),
-                                         new Vec3(-length/2+positionAreaLight.x, positionAreaLight.y,length/2+positionAreaLight.z),
-                                         new Vec3(length/2+positionAreaLight.x,positionAreaLight.y,-length/2+positionAreaLight.z), new Lambert(new RgbColor(1,1,1),
-                                        0, 0, 1, 0), new Vec3(-1, -1, -16)));
-
-        PointLight white = new PointLight(new Vec3(positionAreaLight.x, positionAreaLight.y, positionAreaLight.z), new RgbColor(colorAreaLigth.x, colorAreaLigth.y, colorAreaLigth.z), intensityAreaLigth);
-        renderScene.addLight(white);
-    }
-
-
-
-    public static int getDensity() {
+    public int getDensity() {
         return density;
     }
+    public float getLength(){ return length; }
 }

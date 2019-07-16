@@ -24,15 +24,13 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 import light.AreaLight;
+import material.Material;
 import material.Phong;
 import parser.Parser;
 import light.PointLight;
 import material.Lambert;
 import raytracer.Raytracer;
-import shape.Plane;
-import shape.Sphere;
-import shape.Square;
-import shape.Triangle;
+import shape.*;
 import ui.Window;
 import scene.Scene;
 import utils.Globals;
@@ -75,12 +73,15 @@ public class Main {
         /** * RENDER THEM ONLY, WHEN THERE ARE NO RANDOM LIGHTS ** */
         /** ****************************************************** */
 
-        PointLight white = new PointLight(new Vec3(0f, 2.95f, 0f), new RgbColor(1f, 1f, 1f), 1f);
-        renderScene.addLight(white);
+        AreaLight white = new AreaLight(new Vec3(0f, 2f, 0f), new RgbColor(1f, 1f, 1f),1f, 3f, Globals.lightSamples * Globals.lightSamples, renderScene);
+        PointLight white02 = new PointLight(new Vec3(0f, 1.9f, 0f), new RgbColor(1f, 1f, 1f),1f);
+
+        //renderScene.addLight(white02);
 
 
         /** ****************************************************** */
         /** ****************************************************** */
+
 
 
         /** ****************************************************** */
@@ -91,7 +92,7 @@ public class Main {
         // add random lights (set Globals.randomLights to amount of desired lights
         if (Globals.randomLights > 0) {
             for (int i = 0; i < Globals.randomLights; i++) {
-                renderScene.addLight(new PointLight(new Vec3(Globals.rand(-1, 1), 8f, Globals.rand(-19, -21)), new RgbColor(Globals.rand(0, 1), Globals.rand(0, 1), Globals.rand(0, 1)), Globals.rand(0, 2) / Globals.randomLights));
+                renderScene.addLight(new PointLight(new Vec3(Globals.rand(-1, 1), 8f, Globals.rand(-19, -21)), new RgbColor(Globals.rand(0, 1), Globals.rand(0, 1), Globals.rand(0, 1)), 1 / (Globals.randomLights*Globals.randomLights)));
             }
         }
 
@@ -117,14 +118,25 @@ public class Main {
         /** * RENDER THEM ONLY, WHEN THERE ARE NO RANDOM LIGHTS ** */
         /** ****************************************************** */
 
+        // REFLECTIVE AND REFRACTIVE BOYS
 
-        renderScene.addObject(new Sphere(new Vec3(1.25f, -2f, 0), 1f, new Phong(new RgbColor(0, 0, 0),1, 0f, .4f, 0, 0)));
-        renderScene.addObject(new Sphere(new Vec3(-1.25f, -2f, 2), 1f, new Phong(new RgbColor(0, 0, 0),0, 1, .4f, 0, 0)));
+        Material gi_test_mat = new Lambert(new RgbColor(1,1,1),0, 0, .6f, .5f);
+        Material mat_refl = new Phong(new RgbColor(0, 0, 0),1f, 0, 0, 0, 0);
+        Material mat_refr = new Phong(new RgbColor(0, 0, 0),0, 1f, 0, 0, 0);
+        // WEIRD BOYS
+        renderScene.addObject(new Sphere(new Vec3(2.25f, -2f, -2.0f), 1f, mat_refl));
+        renderScene.addObject(new Sphere(new Vec3(-1.0f, -2.2f, .5f), .8f, mat_refr));
+        // WHITE BOYS
+        renderScene.addObject(new Sphere(new Vec3(1.0f, -2.4f, 2.0f), .6f, gi_test_mat));
+        renderScene.addObject(new Sphere(new Vec3(-2.25f, -2.3f, 3.5f), .7f, gi_test_mat));
+        // GREEN BOYS
         //renderScene.addObject(new Sphere(new Vec3(1.1f, -2f, 1f), 1f, new Phong(new RgbColor(0, 1, 0),0f, 0f, .4f, .5f, .3f)));
+        //renderScene.addObject(new Sphere(new Vec3(0f, -2f, 2f), 1f, new Phong(new RgbColor(0, 1, 0),0f, 0f, .4f, .5f, .3f)));
+
 
         // FAKE LIGHT SOURCE, REAL LIGHT IS ACTUALLY PLACED WAY BELOW, TO MINIMIZE SHADOW FROM SQUARE ON TOP PLANE
-        renderScene.addObject(new Square(new Vec3(-.5f, 2.99f, -.5f), new Vec3(-.5f, 2.99f,.5f), new Vec3(.5f,2.99f,-.5f), new Lambert(new RgbColor(1,1,1),0, 0, 1, 0), new Vec3(-1, -1, -16)));
-
+        renderScene.addObject(new Square(new Vec3(-.5f, 2.99f, -.5f), new Vec3(-.5f, 2.99f,.5f), new Vec3(.5f,2.99f,-.5f), new Lambert(new RgbColor(1,1,1),0, 0, 1, 1), new Vec3(-1, -1, -16)));
+        //renderScene.addObject(new AABB(new Vec3(1,1,1), new Lambert(new RgbColor(1,1,1),0, 0, 1, 0),new Vec3(1,1,1),new Vec3(2,2,2)));
         /** ****************************************************** */
         /** ****************************************************** */
 
@@ -136,7 +148,7 @@ public class Main {
 
         if (Globals.loadObj) {
 
-            parser.Parser.loadObjFile("teapot.obj");
+            parser.Parser.loadObjFile("models/teapot.obj");
 
             for (int i = 0; i <= Parser.i - 1; i++) {
 
@@ -249,7 +261,7 @@ public class Main {
                     refractivity *= 0.9;
                 }
             }
-            float k_a = Globals.rand(0,1)*.1f;
+            float k_a = Globals.rand(0,1);
             float k_d = Globals.rand(0,1);
             float k_s = Globals.rand(0,1);
             if ((k_d + k_s) > 1){
@@ -271,12 +283,12 @@ public class Main {
 
     private static void setupCornellBox(Scene renderScene) {
 
-            Plane planeBack = new Plane(new Vec3(0,0,-6),  new Lambert(new RgbColor(1f,1f,1f),0, 0f, 0.4f, 0.3f), new Vec3(0,0,1));
-            Plane planeLeft = new Plane(new Vec3(-4,0,0),  new Lambert(new RgbColor(1f,0,0),0, 0f, 0.4f, 0.3f), new Vec3(1,0,0));
-            Plane planeRight = new Plane(new Vec3(4,0,0),  new Lambert(new RgbColor(0,0,1f),0, 0f, 0.4f, 0.3f), new Vec3(-1,0,0));
-            Plane planeTop = new Plane(new Vec3(0,3f,0), new Lambert(new RgbColor(1f,1f, 1f), 0, 0f, 0.4f, 0.3f), new Vec3(0,-1,0));
-            Plane planeBottom = new Plane(new Vec3(0,-3f,0), new Lambert(new RgbColor(1f,1f,1f), 0, 0f, 0.4f, 0f), new Vec3(0,1,0));
-            Plane planeFront = new Plane(new Vec3(0,0,18), new Lambert(new RgbColor(1f,1f,1f),0, 0f, 0.4f, 0.3f), new Vec3(0,1,0));
+            Plane planeBack = new Plane(new Vec3(0,0,-6),  new Lambert(new RgbColor(1f,1f,1f),0, 0f, .5f, 0.4f), new Vec3(0,0,1));
+            Plane planeLeft = new Plane(new Vec3(-4,0,0),  new Lambert(new RgbColor(1f,0,0),0, 0f, .5f, 0.4f), new Vec3(1,0,0));
+            Plane planeRight = new Plane(new Vec3(4,0,0),  new Lambert(new RgbColor(0,0,1f),0, 0f, .5f, 0.4f), new Vec3(-1,0,0));
+            Plane planeTop = new Plane(new Vec3(0,3f,0), new Lambert(new RgbColor(1f,1f, 1f), 0, 0f, .5f, 0.4f), new Vec3(0,-1,0));
+            Plane planeBottom = new Plane(new Vec3(0,-3f,0), new Lambert(new RgbColor(1f,1f,1f), 0, 0f, .5f, 0.4f), new Vec3(0,1,0));
+            Plane planeFront = new Plane(new Vec3(0,0,18), new Lambert(new RgbColor(1f,1f,1f),0, 0f, .5f, 0.4f), new Vec3(0,1,0));
             renderScene.addObject(planeBack);
             renderScene.addObject(planeLeft);
             renderScene.addObject(planeRight);

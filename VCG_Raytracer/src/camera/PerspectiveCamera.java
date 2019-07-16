@@ -15,7 +15,7 @@ public class PerspectiveCamera extends Camera{
         this.g = calcg(e, g);
     }
 
-    public Ray rayFor(int x, int y) {
+    public Ray rayFor(float x, float y) {
         // same origin, therefore o = e;
 
 
@@ -26,9 +26,9 @@ public class PerspectiveCamera extends Camera{
         //            tan a             2                  2
 
 
-        final double firstBracket = (double) height/2.0/Math.tan(this.angle/2.0);
-        final double xBracket = (double)x-(((double)width-1.0)/2.0);
-        final double yBracket = (double)y-(((double)height)-1.0)/2.0;
+        final double firstBracket = (double) (height*.5f)/Math.tan(this.angle*.5f);
+        final double xBracket = (double)x-(((double)width-1.0)*.5f);
+        final double yBracket = (double)y-(((double)height)-1.0)*.5f;
 
 
         final Vec3 r = this.w.multScalar(-1.0f).multScalar((float)firstBracket).add(this.u.multScalar((float)xBracket).add(v.multScalar((float)yBracket)));
