@@ -15,14 +15,22 @@ public class Phong extends Material {
     private final float reflectivity;
     private final float refractivity;
     private final RgbColor matColor;
+    private final RgbColor ambientColor;
+    private final RgbColor diffuseColor;
+    private final float matConst;
+    private final int shine;
 
-    public Phong(RgbColor matColor, float reflectivity, float refractivity, float k_a, float k_d, float k_s) {
+    public Phong(RgbColor matColor, float reflectivity, float refractivity, float k_a, float k_d, float k_s, float matConst, int shine) {
         this.reflectivity = reflectivity;
         this.refractivity = refractivity;
         this.k_a = k_a;
         this.k_d = k_d;
         this.k_s = k_s;
         this.matColor = matColor;
+        this.ambientColor = matColor.multScalar(k_a);
+        this.diffuseColor = matColor.multScalar(k_d);
+        this.matConst = matConst;
+        this.shine = shine;
     }
 
     public float getReflectivity() {
@@ -57,8 +65,6 @@ public class Phong extends Material {
 
         RgbColor I_in = light.getColor();
 
-        RgbColor lightAmbient = matColor.multScalar(k_a);
-
         // DIFFUSE
         // L_d = k_d * I_in( N*L)
 
@@ -80,15 +86,13 @@ public class Phong extends Material {
             L_N = cosTheta;
         }
 
-        RgbColor lightDiffuse = I_in.multScalar(L_N * k_d);
+        RgbColor lightDiffuse = I_in.multScalar(L_N).multRGB(diffuseColor);
 
 
         // SPECULAR
         // I_in * k_s * ( ( n + 2 ) / (2 * PI ) ) * ( R * V )^n
 
         RgbColor lightSpecular = new RgbColor(0,0,0);
-
-        float n = 30;
 
         Vec3 V = ((campos).sub(lightRay.getOrigin())).normalize();
 
@@ -98,19 +102,23 @@ public class Phong extends Material {
         float R_V = R.scalar(V);
 
         if (R_V < 1.0 && R_V > 0.0){
-            lightSpecular = I_in.multScalar( (k_s * ((n+2)/(2* (float) Math.PI)) * (float) Math.pow(R_V,n)) );
+            lightSpecular = I_in.multScalar( (k_s * ((shine+2)/(2* (float) Math.PI)) * (float) Math.pow(R_V,shine)) );
         }
 
 
 
         //Log.print("lambertColor: " + lambertColor);
         //Log.print("A: " + lightAmbient.toString() + " D: " + lightDiffuse.toString() + " S: " + lightSpecular.toString());
-        phongColor = (((phongColor.add(lightAmbient)).add(lightDiffuse)).add(lightSpecular));
+        phongColor = (((phongColor.add(ambientColor)).add(lightDiffuse)).add(lightSpecular));
 
         return phongColor.multScalar(light.getIntensity());
     }
 
     public RgbColor getColor() {
         return matColor;
+    }
+
+    public float getMatConst() {
+        return matConst;
     }
 }

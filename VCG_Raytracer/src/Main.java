@@ -39,7 +39,7 @@ import utils.algebra.Vec3;
 import utils.io.Log;
 
 // Main application class. This is the routine called by the JVM to run the program.
-public class Main {
+public abstract class Main {
     // Initial method. This is where the show begins.
     public static void main(String[] args){
         Window renderWindow = new Window(Globals.imageWidth, Globals.imageHeight, Globals.outputTitle);
@@ -106,7 +106,7 @@ public class Main {
         Vec3 camPos = new Vec3(0, 0, 17);
         Vec3 viewPoint = new Vec3(0,0,0);
         Vec3 upVec = new Vec3(0,1,0);
-        float viewAngle = 35 * Globals.RAD;
+        float viewAngle = 30 * Globals.RAD;
 
         renderScene.createPerspCamera(camPos, viewPoint, upVec, viewAngle, Globals.imageWidth, Globals.imageHeight);
     }
@@ -121,14 +121,14 @@ public class Main {
         // REFLECTIVE AND REFRACTIVE BOYS
 
         Material gi_test_mat = new Lambert(new RgbColor(1,1,1),0, 0, .6f, .5f);
-        Material mat_refl = new Phong(new RgbColor(0, 0, 0),1f, 0, 0, 0, 0);
-        Material mat_refr = new Phong(new RgbColor(0, 0, 0),0, 1f, 0, 0, 0);
+        Material matRefl = new Phong(new RgbColor(1, 1, 1),.9f, 0, .05f, .25f, .1f, Globals.water, 30);
+        Material matRefr = new Phong(new RgbColor(1, 1, 1),0, .9f, .05f, .3f, .0075f, Globals.ethanol, 75);
         // WEIRD BOYS
-        renderScene.addObject(new Sphere(new Vec3(2.25f, -2f, -2.0f), 1f, mat_refl));
-        renderScene.addObject(new Sphere(new Vec3(-1.0f, -2.2f, .5f), .8f, mat_refr));
+        //renderScene.addObject(new Sphere(new Vec3(1.1f, -2f, 2f), 1f, matRefr));
+        renderScene.addObject(new Sphere(new Vec3(-1.1f, -2f, -1f), 1f, matRefl));
         // WHITE BOYS
-        renderScene.addObject(new Sphere(new Vec3(1.0f, -2.4f, 2.0f), .6f, gi_test_mat));
-        renderScene.addObject(new Sphere(new Vec3(-2.25f, -2.3f, 3.5f), .7f, gi_test_mat));
+        renderScene.addObject(new Sphere(new Vec3(1.0f, -2f, 2.0f), 1f, gi_test_mat));
+        //renderScene.addObject(new Sphere(new Vec3(-2.25f, -2.3f, 3.5f), .7f, gi_test_mat));
         // GREEN BOYS
         //renderScene.addObject(new Sphere(new Vec3(1.1f, -2f, 1f), 1f, new Phong(new RgbColor(0, 1, 0),0f, 0f, .4f, .5f, .3f)));
         //renderScene.addObject(new Sphere(new Vec3(0f, -2f, 2f), 1f, new Phong(new RgbColor(0, 1, 0),0f, 0f, .4f, .5f, .3f)));
@@ -175,7 +175,7 @@ public class Main {
                 e2.z = ((Parser.va.get((int) (Parser.fa.get(i).z - 1)).z) + translatez) * scale;
                 // TODO: Rotation of Model
 
-                Triangle triangle = new Triangle(new Vec3(0, 0, 0), new Phong(new RgbColor(.8f, 0f, .5f),0f, 0f, 0.5f, 0.3f, 0.5f), e0, e1, e2);
+                Triangle triangle = new Triangle(new Vec3(0, 0, 0), new Phong(new RgbColor(.8f, 0f, .5f),0f, 0f, 0.5f, 0.3f, 0.5f, Globals.glass, 30), e0, e1, e2);
                 renderScene.addObject(triangle);
             }
         }
@@ -231,7 +231,7 @@ public class Main {
 
         // ADD THIS SPHERE (BOUNCY BOY = SPHERE 1) FOR ANIMATION AND SET FRAMES IN GLOBALS!!!!
         if (Globals.animation && Globals.frames > 1) {
-            renderScene.addObject(new Sphere(spherePos, sphereRadius, new Phong(new RgbColor(1, 1, 1),.6f,0f, .3f, .7f, .8f)));
+            renderScene.addObject(new Sphere(spherePos, sphereRadius, new Phong(new RgbColor(1, 1, 1),.6f,0f, .3f, .7f, .8f, Globals.glass, 30)));
         }
 
         /** ****************************************************** */
@@ -271,7 +271,7 @@ public class Main {
                 }
             }
 
-            renderScene.addObject(new Sphere(new Vec3(x,y,z), radius, new Phong(new RgbColor(r,g,b), reflectivity, refractivity, k_a, k_d, k_s)));
+            renderScene.addObject(new Sphere(new Vec3(x,y,z), radius, new Phong(new RgbColor(r,g,b), reflectivity, refractivity, k_a, k_d, k_s, Globals.glass, 30)));
             // Log the material components of a random sphere, so you can save it if you like it!
             Log.print("i: " + i + " // pos: " + x + " " + y + " " + z +" // radius: " + radius + " // color: " + r + " " + g + " " + b + " // reflectivity: " + reflectivity + " // refractivity: " + refractivity + " k_a: " + k_a + " // k_d: " + k_d + " // k_s: " + k_s);
         }
@@ -282,13 +282,18 @@ public class Main {
     }
 
     private static void setupCornellBox(Scene renderScene) {
+            Material wallTop = new Lambert(new RgbColor(1f,1f,1f),0, 0f, .12f, 0.31f);
+            Material wallWhite = new Lambert(new RgbColor(1f,1f,1f),0, 0f, .12f, 0.31f);
+            Material wallFront = new Lambert(new RgbColor(0f,0f,0f),0, 0f, .12f, 0.31f);
+            Material wallRed = new Lambert(new RgbColor(1f,0f,0f),0, 0f, .12f, .31f);
+            Material wallBlue = new Lambert(new RgbColor(0f,0f,1f),0, 0f, .12f, .31f);
 
-            Plane planeBack = new Plane(new Vec3(0,0,-6),  new Lambert(new RgbColor(1f,1f,1f),0, 0f, .5f, 0.4f), new Vec3(0,0,1));
-            Plane planeLeft = new Plane(new Vec3(-4,0,0),  new Lambert(new RgbColor(1f,0,0),0, 0f, .5f, 0.4f), new Vec3(1,0,0));
-            Plane planeRight = new Plane(new Vec3(4,0,0),  new Lambert(new RgbColor(0,0,1f),0, 0f, .5f, 0.4f), new Vec3(-1,0,0));
-            Plane planeTop = new Plane(new Vec3(0,3f,0), new Lambert(new RgbColor(1f,1f, 1f), 0, 0f, .5f, 0.4f), new Vec3(0,-1,0));
-            Plane planeBottom = new Plane(new Vec3(0,-3f,0), new Lambert(new RgbColor(1f,1f,1f), 0, 0f, .5f, 0.4f), new Vec3(0,1,0));
-            Plane planeFront = new Plane(new Vec3(0,0,18), new Lambert(new RgbColor(1f,1f,1f),0, 0f, .5f, 0.4f), new Vec3(0,1,0));
+            Plane planeBack = new Plane(new Vec3(0,0,-6), wallWhite,  new Vec3(0,0,1) );
+            Plane planeLeft = new Plane(new Vec3(-4,0,0), wallRed, new Vec3(1,0,0));
+            Plane planeRight = new Plane(new Vec3(4,0,0), wallBlue, new Vec3(-1,0,0));
+            Plane planeTop = new Plane(new Vec3(0,3f,0), wallTop, new Vec3(0,-1,0));
+            Plane planeBottom = new Plane(new Vec3(0,-3f,0), wallWhite, new Vec3(0,1,0));
+            Plane planeFront = new Plane(new Vec3(0,0,18), wallFront, new Vec3(0,1,0));
             renderScene.addObject(planeBack);
             renderScene.addObject(planeLeft);
             renderScene.addObject(planeRight);
@@ -311,6 +316,8 @@ public class Main {
             new Thread(() -> raytracer.renderScene(frame, yStart, yEnd)).start();
         }
         raytracer.renderScene(frame, (Globals.threads-1)*(height/Globals.threads), Globals.threads * (height/Globals.threads));
+
+
 
 
     }

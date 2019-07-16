@@ -20,27 +20,36 @@ public class AreaLight extends Light{
         super(position, color, intensity);
         this.length=length;
         this.density=density;
+        if (Globals.lightSamples > 1) {
+            // create a lot of point lights with fraction of intensity. easy.
+            float step = length / Globals.lightSamples;
+            float stepHalf = step * .5f;
+            float lengthHalf = length * .5f;
 
-        // create a lot of point lights with fraction of intensity. easy.
-        float half = Globals.lightSamples;
-        float step = length/half;
-        float stepHalf = step*.5f;
-        float lengthHalf = length * .5f;
-        float xBoundary = (position.x + lengthHalf - stepHalf);
-        float zBoundary = (position.z + lengthHalf - stepHalf);
-        Log.print("step: " + step);
-        for (float x =  position.x - lengthHalf + stepHalf; x <= xBoundary; x += step){
-            for (float z = position.z - lengthHalf + stepHalf; z <= zBoundary; z += step){
-                float randx = Globals.rand(-1,1)*stepHalf;
-                float randcosx = (float)Math.cos(Globals.rand(-1,1))*stepHalf;
+            float xBoundary = (position.x + lengthHalf - stepHalf);
+            float zBoundary = (position.z + lengthHalf - stepHalf);
 
-                float randz = Globals.rand(-1,1)*.5f*stepHalf;
-                float randcosz = (float)Math.cos(Globals.rand(-1,1))*stepHalf;
+            float xStart = (position.x - lengthHalf + stepHalf);
+            float zStart = (position.z - lengthHalf + stepHalf);
 
-                PointLight sampleLight = new PointLight(new Vec3(x+randcosx, position.y, z+randcosz), color, intensity/density);
-                //Log.print("x: " + x + " y: " + position.y + "z: " + z);
-                renderScene.addLight(sampleLight);
+            for (float x = xStart; x <= xBoundary; x += step) {
+                for (float z = zStart; z <= zBoundary; z += step) {
+
+                    float randx = Globals.rand(-1, 1) * stepHalf;
+                    float randcosx = (float) Math.cos(Globals.rand(-1, 1)) * stepHalf;
+
+                    float randz = Globals.rand(-1, 1) * .5f * stepHalf;
+                    float randcosz = (float) Math.cos(Globals.rand(-1, 1)) * stepHalf;
+
+                    PointLight sampleLight = new PointLight(new Vec3(x + randx, position.y, z + randz), color, intensity / density);
+                    //Log.print("x: " + x + " y: " + position.y + "z: " + z);
+                    renderScene.addLight(sampleLight);
+                }
             }
+        }
+        else {
+            PointLight sampleLight = new PointLight(position, color, intensity);
+            renderScene.addLight(sampleLight);
         }
 
 

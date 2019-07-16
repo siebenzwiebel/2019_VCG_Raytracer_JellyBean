@@ -14,6 +14,8 @@ public class Lambert extends Material {
     private final float k_a;
     private final float k_d;
     private final RgbColor matColor;
+    private final RgbColor ambientColor;
+    private final RgbColor diffuseColor;
 
 
 
@@ -23,6 +25,10 @@ public class Lambert extends Material {
         this.reflectivity = reflectivity;
         this.refractivity = refractivity;
         this.matColor = matColor;
+        this.ambientColor = matColor.multScalar(k_a);
+        this.diffuseColor = matColor.multScalar(k_d);
+
+
     }
 
 
@@ -34,6 +40,9 @@ public class Lambert extends Material {
         return refractivity;
     }
     public float getAlbedo(){return k_a;}
+    public float getMatConst(){return 0;}
+
+
 
     public RgbColor calculateAmbientColor(Ray lightRay, Light light, SceneObject object, Scene scene){
 
@@ -57,7 +66,6 @@ public class Lambert extends Material {
 
         RgbColor I_in = light.getColor();
 
-        RgbColor lightAmbient = matColor.multScalar(k_a);
         RgbColor lightDiffuse;
 
 
@@ -81,13 +89,13 @@ public class Lambert extends Material {
                 L_N = cosTheta;
             }
 
-            lightDiffuse = I_in.multScalar(L_N * k_d);
+            lightDiffuse = I_in.multScalar(L_N).multRGB(diffuseColor);
 
 
 
         //Log.print("lambertColor: " + lambertColor);
         //Log.print("A: " + lightAmbient.toString() + " D: " + lightDiffuse.toString() + " S: " + lightSpecular.toString());
-        lambertColor = ((lambertColor.add(lightAmbient)).add(lightDiffuse));
+        lambertColor = ((lambertColor.add(ambientColor)).add(lightDiffuse));
         return lambertColor.multScalar(light.getIntensity());
     }
 

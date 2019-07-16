@@ -168,7 +168,7 @@ public class Raytracer {
     {
         // cos(theta) = r1 = y
         // cos^2(theta) + sin^2(theta) = 1 -> sin(theta) = srtf(1 - cos^2(theta))
-        float sinTheta = r2; //(float) Math.sqrt(1 - (r1 * r1));
+        float sinTheta = (float) Math.sqrt(1 - (r1 * r1));
         float phi = (float) (2 * Math.PI * r2);
         float x = (float) (sinTheta * Math.cos(phi));
         float z = (float) (sinTheta * Math.sin(phi));
@@ -182,6 +182,7 @@ public class Raytracer {
         SceneObject shadowObject = null;
         boolean hit = false;
         RgbColor calcColor = new RgbColor(0, 0, 0);
+        RgbColor shadowColor = new RgbColor(.075f, .075f, .075f);
         RgbColor indirectLightContrib = new RgbColor(0, 0, 0);
         float redValue=0;
         float greenValue=0;
@@ -226,6 +227,7 @@ public class Raytracer {
                         calcColor = calcColor.add(mat.calculateColor(secondaryRay, light, hitObject, mScene) );
                     }
                     else{
+                        //calcColor = shadowColor;
                         calcColor = calcColor.add(mat.calculateAmbientColor(secondaryRay, light, hitObject, mScene));
                     }
 
@@ -263,7 +265,7 @@ public class Raytracer {
                     Vec3 I = ray.getDirection().normalize();
                     double NdotI = normal.scalar(I);
                     double etai = 1;
-                    double etat = Globals.nGlass;
+                    double etat = hitObject.getMaterial().getMatConst();
 
                     if (NdotI < 0) {
                         NdotI = -1 * NdotI;
@@ -299,10 +301,11 @@ public class Raytracer {
                     RgbColor sampleColor = new RgbColor(0,0,0);
                     for (int n = 0; n < Globals.lightRecursionRays; n++) {
                         float theta = (float) (Math.random() * Math.PI);
-                        float cosTheta = (float) Math.cos(theta);
-                        float sinTheta = (float) Math.sin(theta);
+                        float cosTheta = (float) Math.random();//Math.cos(theta);
+                        //float sinTheta = (float) Math.sin(theta); // RANDOM SHIT
+                        float r2 = (float)Math.random();
 
-                        Vec3 sample = uniformSampleHemisphere(cosTheta, sinTheta);
+                        Vec3 sample = uniformSampleHemisphere(cosTheta, r2);
 
                         Vec3 sampleWorld = new Vec3(
                                 sample.x * Nb.x + sample.y * hitObject.getNormal(ray.at(t)).x + sample.z * Nt.x,
@@ -324,9 +327,9 @@ public class Raytracer {
                 }
             }
 
-            float multiplyValue = (hitObject != null ? hitObject.getMaterial().getAlbedo() / (float)Math.PI : 1); // aus der Formel für Monte Carlo Raytracing
-            float multiplyValue2 = 3f; // Bild heller/dunkler machen
-            float indirectLightValue = 1f; // Wie "stark" soll das indirekt Licht sein
+            float multiplyValue = (hitObject != null ? 1 / (float)Math.PI : 1); // aus der Formel für Monte Carlo Raytracing
+            float multiplyValue2 = 1f; // Bild heller/dunkler machen
+            float indirectLightValue = .5f; // Wie "stark" soll das indirekt Licht sein
             if (hitObject != null && (hitObject.getMaterial().getReflectivity() != 0 || hitObject.getMaterial().getRefractivity() != 0)) {  // notwendig -> sonst flecken auf den kugeln bei refl/refr
                 multiplyValue = 1;
                 multiplyValue2 = 1;
@@ -334,7 +337,8 @@ public class Raytracer {
 
         //return calcColor;
         //return (calcColor.add(indirectLightContrib)).multScalar(multiplyValue);
-        return calcColor.multScalar(multiplyValue).add(indirectLightContrib.multScalar(indirectLightValue)).multScalar(multiplyValue2);
+        return (calcColor.add(indirectLightContrib.multScalar(indirectLightValue))).multScalar(multiplyValue2);
+        //return ((calcColor.multScalar(1/(float)Math.PI)).add(indirectLightContrib).multScalar(2));
         //return ((calcColor.multScalar(multiplyValue2)).add(indirectLightContrib.multScalar(indirectLightValue))).multScalar(multiplyValue);
 
     }
